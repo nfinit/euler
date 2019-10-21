@@ -32,19 +32,23 @@ char is_multiple (unsigned long n, int valc, unsigned long *values)
 int main (int argc, char **argv)
 {
   /* Variable declaration and argument check */
-  unsigned long n, c, s, vc, *v;
+  unsigned long n, c, s, m, vc, *v;
+  m = 0;
+  s = 0;
   if (argc < 2) { printf("usage: %s [n] [value(s)]\n",argv[0]); return 0; }
-  
+
   /* Argument parsing */
   n = atol(argv[1]);
   vc = argc-2;
   v = malloc(vc*sizeof(unsigned long));
   for (c = 0; c < vc; c++) v[c] = atol(argv[c+2]);
-  
+  printf("Testing range:            0 < n < %lu\n",n);
+
   /* Main computation loop */
-  for (c = 1; c < n; c++) if (is_multiple(c,argc-2,v)) s += c;
-  
+  for (c = 1; c < n; c++) if (is_multiple(c,argc-2,v)) { m++; s += c; }
+
   /* Result return and cleanup */ 
-  printf("%lu\n",s);
+  printf("Matching values in range: %lu\n",m);
+  printf("Sum of matching values:   %lu\n",s);
   return 0;
 }
