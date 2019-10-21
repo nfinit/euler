@@ -5,20 +5,33 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <stdio.h>
-char is_multiple (unsigned long n, unsigned long *values, int num_values);
+char is_multiple (unsigned long n, int valc, unsigned long *values);
 
 /* is_multiple(n,values,num_values)
  * Checks if a given number is a multiple of any one (or more) of the
  * values given in an array
  */
-char is_multiple (unsigned long n, unsigned long *values, int num_values)
+char is_multiple (unsigned long n, int valc, unsigned long *values)
 {
   int v;
-  for (v = 0; v < num_values; v++) if (n%values[v] == 0) return 1;
+  for (v = 0; v < valc; v++) if (n%values[v] == 0) return 1;
   return 0;
 }
 
 int main (int argc, char **argv)
 {
+  unsigned long n, c, s, *v;
+  if (argc < 2)
+  {
+    printf("usage: %s [n] [value(s)]");
+    return 0;
+  }
+  n = atol(argv[1]);
+  v = &argv[2];
+  for (c = 1; c < n; c++)
+  {
+    if (is_multiple(c,argc-2,v)) s += c;
+  }
+  printf("%ld\n",s);
   return 0;
 }
