@@ -3,7 +3,7 @@
 # ----------------------------------------------------------------- #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-CC     = cc
+CC     = gcc
 CFLAGS = -Wall -Wextra -std=c89 -pedantic -Wmissing-prototypes \
          -Wstrict-prototypes -Wold-style-definition
 OFLAGS = -O2
