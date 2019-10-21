@@ -43,6 +43,7 @@ int main (int argc, char **argv)
   v = malloc(vc*sizeof(unsigned long));
   for (c = 0; c < vc; c++) v[c] = atol(argv[c+2]);
   printf("Testing range:            0 < n < %lu\n",n);
+  printf("Size of data:             %u bits\n",sizeof(unsigned long)*8);
 
   /* Main computation loop */
   for (c = 1; c < n; c++) if (is_multiple(c,argc-2,v)) { m++; s += c; }
