@@ -4,13 +4,18 @@
  * Find the sum of all the multiples of 3 or 5 below 1000.
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/* INCLUDES AND FUNCTION PROTOTYPES */
+
 #include <stdio.h>
 #include <stdlib.h>
+
 char is_multiple (unsigned long n, int valc, unsigned long *values);
+
+/* BEGIN PROGRAM LOGIC */
 
 /* is_multiple(n,values,num_values)
  * Checks if a given number is a multiple of any one (or more) of the
- * values given in an array
+ * arbitrary values given in an array.
  */
 char is_multiple (unsigned long n, int valc, unsigned long *values)
 {
@@ -19,25 +24,27 @@ char is_multiple (unsigned long n, int valc, unsigned long *values)
   return 0;
 }
 
+/* MAIN FUNCTION
+ * Takes in the maximum value as the first argument and arbitrary 
+ * target divisors in subsequent arguments. Keeps track of and
+ * prints sum of matching numbers when loop is completed.
+ */
 int main (int argc, char **argv)
 {
+  /* Variable declaration and argument check */
   unsigned long n, c, s, vc, *v;
-  if (argc < 2)
-  {
-    printf("usage: %s [n] [value(s)]\n",argv[0]);
-    return 0;
-  }
+  if (argc < 2) { printf("usage: %s [n] [value(s)]\n",argv[0]); return 0; }
+  
+  /* Argument parsing */
   n = atol(argv[1]);
   vc = argc-2;
   v = malloc(vc*sizeof(unsigned long));
-  for (c = 0; c < vc; c++)
-  {
-    v[c] = atol(argv[c+2]);
-  }
-  for (c = 1; c < n; c++)
-  {
-    if (is_multiple(c,argc-2,v)) s += c;
-  }
+  for (c = 0; c < vc; c++) v[c] = atol(argv[c+2]);
+  
+  /* Main computation loop */
+  for (c = 1; c < n; c++) if (is_multiple(c,argc-2,v)) s += c;
+  
+  /* Result return and cleanup */ 
   printf("%lu\n",s);
   return 0;
 }
