@@ -32,9 +32,10 @@ char is_multiple (unsigned long n, int valc, unsigned long *values)
 int main (int argc, char **argv)
 {
   /* Variable declaration and argument check */
-  unsigned long n, c, s, m, vc, *v;
+  unsigned long n, c, s, l, m, of, vc, *v;
   m = 0;
   s = 0;
+  of = 0;
   if (argc < 2) { printf("usage: %s [n] [value(s)]\n",argv[0]); return 0; }
 
   /* Argument parsing */
@@ -46,10 +47,13 @@ int main (int argc, char **argv)
   printf("Size of data:             %u bits\n",sizeof(unsigned long)*8);
 
   /* Main computation loop */
-  for (c = 1; c < n; c++) if (is_multiple(c,argc-2,v)) { m++; s += c; }
+  for (c = 1; c < n; c++) if (is_multiple(c,argc-2,v)) 
+  { l = s; m++; s += c; if (s < l) of++; }
 
   /* Result return and cleanup */ 
   printf("Matching values in range: %lu\n",m);
   printf("Sum of matching values:   %lu\n",s);
+  if (of) printf("WARNING: Overflow events (%lu) detected. Results are not accurate.\n",of);
+  free(v);
   return 0;
 }
