@@ -16,5 +16,5 @@ http://en.wikipedia.org/wiki/ANSI_C
 
 [//]: # ( Problems =========================================================== )
 
-[1]: https://github.com/nfinit/euler/wiki/C89:-Problem-1
+[1]: https://github.com/nfinit/euler/wiki/Problem-1
 (Multiples of 3 and 5)
