@@ -5,6 +5,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <stdio.h>
+#include <stdlib.h>
 char is_multiple (unsigned long n, int valc, unsigned long *values);
 
 /* is_multiple(n,values,num_values)
@@ -20,18 +21,23 @@ char is_multiple (unsigned long n, int valc, unsigned long *values)
 
 int main (int argc, char **argv)
 {
-  unsigned long n, c, s, *v;
+  unsigned long n, c, s, vc, *v;
   if (argc < 2)
   {
-    printf("usage: %s [n] [value(s)]");
+    printf("usage: %s [n] [value(s)]\n",argv[0]);
     return 0;
   }
   n = atol(argv[1]);
-  v = &argv[2];
+  vc = argc-2;
+  v = malloc(vc*sizeof(unsigned long));
+  for (c = 0; c < vc; c++)
+  {
+    v[c] = atol(argv[c+2]);
+  }
   for (c = 1; c < n; c++)
   {
     if (is_multiple(c,argc-2,v)) s += c;
   }
-  printf("%ld\n",s);
+  printf("%lu\n",s);
   return 0;
 }
