@@ -51,7 +51,7 @@ int main (int argc, char **argv)
   /* Main computation loop */
   for (n = 1; n < max; n++) if (is_multiple(n,argc-2,divisors)) 
   { last_sum = sum; matches++; sum += n; if (sum < last_sum) overflows++; }
-
+  
   /* Result return and cleanup */ 
   printf("Matching values in range: %.0Lf\n",matches);
   printf("Sum of matching values:   %.0Lf\n",sum);
