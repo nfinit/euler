@@ -43,9 +43,15 @@ char is_multiple (long double n, int valc, long double *values)
 int main (int argc, char **argv)
 {
   /* Variable declaration and argument check */
-  DATA max, sum, matches, n, *divisors;
+  DATA max, sum, n, *divisors;
+  #ifndef _P1_FAST
+  DATA matches;
+  #endif
   unsigned long i, num_divisors, last_sum, overflows;
-  sum = 0; matches = 0; overflows = 0;
+  sum = 0; overflows = 0;
+  #ifndef _P1_FAST
+  matches = 0;
+  #endif
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
 
   /* Argument parsing */
@@ -64,13 +70,17 @@ int main (int argc, char **argv)
     divisors[i] = atof(argv[i+2]);
     #endif
   }
+  #ifdef _P1_FAST
+  printf("Testing range:            0 < n < %lu\n",max);
+  #else
   printf("Testing range:            0 < n < %.0Lf\n",max);
+  #endif
   printf("Data size:                %lu bits\n",(unsigned long)sizeof(DATA)*8);
 
   /* Main computation loop */
   #ifdef _P1_FAST
   for (i = 0; i < num_divisors; i++)
-  { last_sum = sum; n = divisors[i]; sum += n*(max/n)*((max/n)+1)/2; if (sum < last_sum) overflows++; }
+  { last_sum = sum; n = divisors[i]; sum += n*(max/n)*(((max/n)+1)/2); if (sum < last_sum) overflows++; }
   #else
   for (n = 1; n < max; n++) if (is_multiple(n,argc-2,divisors)) 
   { last_sum = sum; matches++; sum += n; if (sum < last_sum) overflows++; }
@@ -79,8 +89,10 @@ int main (int argc, char **argv)
   /* Result return and cleanup */ 
   #ifndef _P1_FAST
   printf("Matching values in range: %.0Lf\n",matches);
-  #endif
   printf("Sum of matching values:   %.0Lf\n",sum);
+  #else
+  printf("Sum of matching values:   %lu\n",sum);
+  #endif
   if (overflows) printf("WARNING: Overflow events (%lu) detected\n",overflows);
   free(divisors);
   return 0;
