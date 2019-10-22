@@ -32,28 +32,30 @@ char is_multiple (unsigned long n, int valc, unsigned long *values)
 int main (int argc, char **argv)
 {
   /* Variable declaration and argument check */
-  unsigned long n, c, s, l, m, of, vc, *v;
-  m = 0;
-  s = 0;
-  of = 0;
-  if (argc < 2) { printf("usage: %s [n] [value(s)]\n",argv[0]); return 0; }
+  unsigned long max, sum, *divisors, matches, n;
+  unsigned long num_divisors, last_sum, overflows;
+  sum = 0;
+  matches = 0;
+  overflows = 0;
+  if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
 
   /* Argument parsing */
-  n = atol(argv[1]);
-  vc = argc-2;
-  v = malloc(vc*sizeof(unsigned long));
-  for (c = 0; c < vc; c++) v[c] = atol(argv[c+2]);
-  printf("Testing range:            0 < n < %lu\n",n);
-  printf("Size of data:             %u bits\n",sizeof(unsigned long)*8);
+  max = atol(argv[1]);
+  num_divisors = argc-2;
+  divisors = malloc(num_divisors*sizeof(unsigned long));
+  for (n = 0; n < num_divisors; n++) divisors[n] = atol(argv[n+2]);
+  printf("Testing range:            0 < n < %lu\n",max);
+  printf("Size of data:             %lu bits\n",(unsigned long)sizeof(unsigned long)*8);
 
   /* Main computation loop */
-  for (c = 1; c < n; c++) if (is_multiple(c,argc-2,v)) 
-  { l = s; m++; s += c; if (s < l) of++; }
+  for (n = 1; n < max; n++) if (is_multiple(n,argc-2,divisors)) 
+  { last_sum = sum; matches++; sum += n; if (sum < last_sum) overflows++; }
 
   /* Result return and cleanup */ 
-  printf("Matching values in range: %lu\n",m);
-  printf("Sum of matching values:   %lu\n",s);
-  if (of) printf("WARNING: Overflow events (%lu) detected. Results are not accurate.\n",of);
-  free(v);
+  printf("Matching values in range: %lu\n",matches);
+  printf("Sum of matching values:   %lu\n",sum);
+  if (overflows) printf("WARNING: Overflow events (%lu) detected. \
+		        Above results are inaccurate.\n",overflows);
+  free(divisors);
   return 0;
 }
