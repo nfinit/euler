@@ -17,12 +17,12 @@ P1_EXEC  = $(BIN_DIR)/multisum
 
 p1: setup
 	@echo "P1: Building solution..."
-	$(CC) $(CFLAGS) $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
+	$(CC) $(CFLAGS) -lm $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
 	@echo "*** Build complete ***"
 
 p1test: setup
 	@echo "P1: Building solution for testing..."
-	$(CC) $(CFLAGS) $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
+	$(CC) $(CFLAGS) -lm $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
 	@echo ""
 	@echo "*** Test 01: No input ***"
 	$(P1_EXEC)
@@ -40,7 +40,7 @@ p1test: setup
 
 p1bench: setup
 	@echo "P1: Building solution for benchmarking..."
-	$(CC) $(CFLAGS) $(OFLAGS) $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
+	$(CC) $(CFLAGS) -lm $(OFLAGS) $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
 	@echo ""
 	@echo "*** Trial 01: Multiples of 3 < 1000 ***"
 	@/usr/bin/env bash -c "time $(P1_EXEC) 1000 3"
