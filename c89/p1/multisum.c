@@ -4,13 +4,21 @@
  * Find the sum of all the multiples of 3 or 5 below 1000.
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* INCLUDES AND FUNCTION PROTOTYPES */
+/* INCLUDES, DEFINITIONS AND FUNCTION PROTOTYPES */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
+#ifdef _P1_FAST
+typedef unsigned long DATA;
+#else
+typedef long double DATA;
+#endif
+
+#ifndef _P1_FAST
 char is_multiple (long double n, int valc, long double *values);
+#endif
 
 /* BEGIN PROGRAM LOGIC */
 
@@ -18,12 +26,14 @@ char is_multiple (long double n, int valc, long double *values);
  * Checks if a given number is a multiple of any one (or more) of the
  * arbitrary values given in an array.
  */
+#ifndef _P1_FAST
 char is_multiple (long double n, int valc, long double *values)
 {
   int v;
   for (v = 0; v < valc; v++) if (fmod(n,values[v]) == 0) return 1;
   return 0;
 }
+#endif
 
 /* MAIN FUNCTION
  * Takes in the maximum value as the first argument and arbitrary 
@@ -33,27 +43,43 @@ char is_multiple (long double n, int valc, long double *values)
 int main (int argc, char **argv)
 {
   /* Variable declaration and argument check */
-  long double max, sum, matches, n, *divisors;
+  DATA max, sum, matches, n, *divisors;
   unsigned long i, num_divisors, last_sum, overflows;
-  sum = 0.0;
-  matches = 0.0;
-  overflows = 0;
+  sum = 0; matches = 0; overflows = 0;
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
 
   /* Argument parsing */
+  #ifdef _P1_FAST
+  max = atol(argv[1]);
+  #else
   max = atof(argv[1]);
+  #endif
   num_divisors = argc-2;
-  divisors = malloc(num_divisors*sizeof(long double));
-  for (i = 0; i < num_divisors; i++) divisors[i] = atof(argv[i+2]);
+  divisors = malloc(num_divisors*sizeof(DATA));
+  for (i = 0; i < num_divisors; i++)
+  {
+    #ifdef _P1_FAST
+    divisors[i] = atol(argv[i+2]);
+    #else
+    divisors[i] = atof(argv[i+2]);
+    #endif
+  }
   printf("Testing range:            0 < n < %.0Lf\n",max);
-  printf("Data size:                %lu bits\n",(unsigned long)sizeof(long double)*8);
+  printf("Data size:                %lu bits\n",(unsigned long)sizeof(DATA)*8);
 
   /* Main computation loop */
+  #ifdef _P1_FAST
+  for (i = 0; i < num_divisors; i++)
+  { last_sum = sum; n = divisors[i]; sum += n*(max/n)*((max/n)+1)/2; if (sum < last_sum) overflows++; }
+  #else
   for (n = 1; n < max; n++) if (is_multiple(n,argc-2,divisors)) 
   { last_sum = sum; matches++; sum += n; if (sum < last_sum) overflows++; }
+  #endif
   
   /* Result return and cleanup */ 
+  #ifndef _P1_FAST
   printf("Matching values in range: %.0Lf\n",matches);
+  #endif
   printf("Sum of matching values:   %.0Lf\n",sum);
   if (overflows) printf("WARNING: Overflow events (%lu) detected\n",overflows);
   free(divisors);
