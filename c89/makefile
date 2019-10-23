@@ -36,20 +36,31 @@ p1: setup
 	@echo "*** Build complete ***"
 
 validate-p1: p1
+	@echo ""
 	@echo "P1: Running validation tests..."
-	@echo "*** BRUTE-FORCE ALGORITHM"
+	@echo ""
+	@echo "*** BRUTE-FORCE SEARCH"
 	$(P1_EXEC_SL) 10 3 5
 	$(P1_EXEC_SL) 1000 3 5
-	@echo "*** FAST ALGORITHM"
+	@echo ""
+	@echo "*** FAST SUMMATION"
 	$(P1_EXEC) 10 3 5
 	$(P1_EXEC) 1000 3 5
+	@echo ""
+	@echo "*** VALIDATION TEST COMPLETE ***"
 
 benchmark-p1: p1
+	@echo ""
 	@echo "P1: Running benchmark tests..."
 	@echo "Compiler: $(CC_VER)"
 	@echo "Optimization flags: $(OFLAGS)"
-	@echo "Search: 3, 5, 7, 11, 13 in range 0 < n < $(n)"
-	@echo "Using fast summation:"
+	@echo ""
+	@echo "Searching: 3, 5, 7, 11, 13 in range 0 < n < $(n)"
+	@echo ""
+	@echo "*** FAST SUMMATION"
 	@/usr/bin/env bash -c "time $(P1_EXEC) $(n) 3 5 7 11 13"
-	@echo "Using brute-force search:"
+	@echo ""
+	@echo "*** BRUTE-FORCE SEARCH"
 	@/usr/bin/env bash -c "time $(P1_EXEC_SL) $(n) 3 5 7 11 13"
+	@echo ""
+	@echo "*** TEST COMPLETE***"
