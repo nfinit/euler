@@ -5,7 +5,7 @@ C or Standard C.
 
 |  #  | Status | Solutions                                                     |
 |-----|--------|---------------------------------------------------------------|
-| [1] | Solved | Brute force                                                   |
+| [1] | Solved | Brute force, arithmetic sequence                              |
 
 [//]: # ( Links and references // Links and references // Links and references )
 
