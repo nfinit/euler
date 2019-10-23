@@ -52,22 +52,22 @@ DATA combination (DATA n, DATA r)
 DATA *product_array (DATA *values, unsigned long num_values)
 {
   DATA *products, *temp;
-  unsigned long num_products, current_product, n, i, level;
+  unsigned long num_products, current_product, n, c,i level, i;
   current_product = 0;
   for (n = 1; n <= num_values; n++) num_products += combination(num_values,n);
   num_products -= num_values;
   products = malloc(num_products*sizeof(DATA));
   temp = malloc((num_values)*sizeof(DATA));
   for (i = 0; i < num_values; i++) temp[i] = values[i];
-  /* TODO: The loop below only finds multiples of the first
-   * divisor. It probably needs to be enclosed in another to
-   * cover all other divisors.
-   */
-  for (level = 0; level < num_values; level++)
+  for (c = 0; c < num_values-1; c++)
   {
-    for (i = 0; i < num_values; i++) temp[i] *= values[level];
-    for (i = level+1; level+1 < num_values; i++) 
-    { products[current_product] = temp[i]; current_product++; }
+    for (i = 0; i < num_values; i++) temp[i] = values[i];
+    for (level = c; level < num_values; level++) 
+    {
+      for (i = num_values-1; i > level; i--) temp[i] *= values[level];
+      for (i = level+1; i < num_values; i++) products[current_product++] = temp[i];
+    }
+    
   }
   free(temp);
   return products;
@@ -79,7 +79,7 @@ DATA *product_array (DATA *values, unsigned long num_values)
  */
 char is_multiple (DATA n, DATA *divisors, unsigned long num_divisors)
 { 
-  int i; for (i = 0; i < num_divisors; i++) if (fmod(n,divisors[i]) == 0) return 1; 
+  unsigned long i; for (i = 0; i < num_divisors; i++) if (fmod(n,divisors[i]) == 0) return 1; 
   return 0; 
 }
 #endif
@@ -133,12 +133,8 @@ int main (int argc, char **argv)
   #ifdef _P1_FAST
   for (i = 0; i < num_divisors; i++)
   { last_sum = sum; n = divisors[i]; sum += n*(max/n)*(((max/n)+1)/2); if (sum < last_sum) overflows++; }
-  for (j = num_divisors; j > num_divisors; j++)
-  {
-    
-  }
   #else
-  for (n = 1; n < max; n++) if (is_multiple(n,argc-2,divisors)) 
+  for (n = 1; n < max; n++) if (is_multiple(n,divisors,(unsigned long)argc-2)) 
   { last_sum = sum; matches++; sum += n; if (sum < last_sum) overflows++; }
   #endif
   
