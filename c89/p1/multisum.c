@@ -10,13 +10,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#ifdef _P1_FAST
-typedef unsigned long DATA;
-#else
 typedef long double DATA;
-#endif
-
-
 
 #ifdef _P1_FAST
 DATA factorial (DATA n);
@@ -52,7 +46,7 @@ DATA combination (DATA n, DATA r)
 DATA *product_array (DATA *values, unsigned long num_values)
 {
   DATA *products, *temp;
-  unsigned long num_products, current_product, n, c,i level, i;
+  unsigned long num_products, current_product, n, c, level, i;
   current_product = 0;
   for (n = 1; n <= num_values; n++) num_products += combination(num_values,n);
   num_products -= num_values;
@@ -62,13 +56,13 @@ DATA *product_array (DATA *values, unsigned long num_values)
   for (c = 0; c < num_values-1; c++)
   {
     for (i = 0; i < num_values; i++) temp[i] = values[i];
-    for (level = c; level < num_values; level++) 
+    for (level = c; level < num_values-1; level++) 
     {
       for (i = num_values-1; i > level; i--) temp[i] *= values[level];
       for (i = level+1; i < num_values; i++) products[current_product++] = temp[i];
     }
-    
   }
+  products[current_product] = -1;
   free(temp);
   return products;
 }
@@ -96,19 +90,21 @@ int main (int argc, char **argv)
   #ifndef _P1_FAST
   DATA matches;
   #else
-  DATA duplicate_sum, product;
-  unsigned long j;
+  DATA duplicate_sum, *products;
   #endif
   unsigned long i, num_divisors, last_sum, overflows;
   sum = 0; overflows = 0;
   #ifndef _P1_FAST
   matches = 0;
+  #else
+  duplicate_sum = 0;
   #endif
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
 
   /* Argument parsing */
   #ifdef _P1_FAST
   max = atol(argv[1]);
+  max--;
   #else
   max = atof(argv[1]);
   #endif
@@ -122,17 +118,23 @@ int main (int argc, char **argv)
     divisors[i] = atof(argv[i+2]);
     #endif
   }
-  #ifdef _P1_FAST
-  printf("Testing range:            0 < n < %lu\n",max);
-  #else
   printf("Testing range:            0 < n < %.0Lf\n",max);
-  #endif
   printf("Data size:                %lu bits\n",(unsigned long)sizeof(DATA)*8);
 
   /* Main computation loops */
   #ifdef _P1_FAST
   for (i = 0; i < num_divisors; i++)
-  { last_sum = sum; n = divisors[i]; sum += n*(max/n)*(((max/n)+1)/2); if (sum < last_sum) overflows++; }
+  { last_sum = sum; n = divisors[i]; sum += n*floor(max/n)*((floor(max/n)+1)/2); if (sum < last_sum) overflows++; }
+  products = product_array(divisors,num_divisors);
+  i = 0; while (products[i] > 0)
+  {
+	  last_sum = duplicate_sum; 
+	  n = products[i];
+	  duplicate_sum += n*floor(max/n)*((floor(max/n)+1)/2);
+	  if (duplicate_sum < last_sum) overflows++;
+	  i++;
+  }
+  sum -= duplicate_sum;
   #else
   for (n = 1; n < max; n++) if (is_multiple(n,divisors,(unsigned long)argc-2)) 
   { last_sum = sum; matches++; sum += n; if (sum < last_sum) overflows++; }
@@ -141,10 +143,8 @@ int main (int argc, char **argv)
   /* Result return and cleanup */ 
   #ifndef _P1_FAST
   printf("Matching values in range: %.0Lf\n",matches);
-  printf("Sum of matching values:   %.0Lf\n",sum);
-  #else
-  printf("Sum of matching values:   %lu\n",sum);
   #endif
+  printf("Sum of matching values:   %.0Lf\n",sum);
   if (overflows) printf("WARNING: Overflow events (%lu) detected\n",overflows);
   free(divisors);
   return 0;
