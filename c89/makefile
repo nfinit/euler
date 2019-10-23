@@ -4,7 +4,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 CC         = gcc
-CC_VER     = $(shell gcc --version)
+CC_VER     = $(shell gcc --version | grep ^gcc | sed 's/^.* //g') # GCC
 CFLAGS     = -Wall -Wextra -std=c89 -pedantic -Wmissing-prototypes \
              -Wstrict-prototypes -Wold-style-definition
 OFLAGS     = -O2
