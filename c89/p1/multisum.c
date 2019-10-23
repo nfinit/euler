@@ -124,22 +124,27 @@ int main (int argc, char **argv)
   /* Main computation loops */
   #ifdef _P1_FAST
   for (i = 0; i < num_divisors; i++)
-  { last_sum = sum; n = divisors[i]; sum += n*floor(max/n)*((floor(max/n)+1)/2); if (sum < last_sum) overflows++; }
+  { 
+    last_sum = sum; 
+    n = divisors[i]; 
+    sum += n*floor(max/n)*((floor(max/n)+1)/2); 
+    if (sum < last_sum) overflows++; 
+  }
   products = product_array(divisors,num_divisors);
   i = 0; while (products[i] > 0)
   {
-	  last_sum = duplicate_sum; 
-	  n = products[i];
-	  duplicate_sum += n*floor(max/n)*((floor(max/n)+1)/2);
-	  if (duplicate_sum < last_sum) overflows++;
-	  i++;
+    last_sum = duplicate_sum; 
+    n = products[i];
+    duplicate_sum += n*floor(max/n)*((floor(max/n)+1)/2);
+    if (duplicate_sum < last_sum) overflows++;
+    i++;
   }
   sum -= duplicate_sum;
   #else
   for (n = 1; n < max; n++) if (is_multiple(n,divisors,(unsigned long)argc-2)) 
   { last_sum = sum; matches++; sum += n; if (sum < last_sum) overflows++; }
   #endif
-  
+	
   /* Result return and cleanup */ 
   #ifndef _P1_FAST
   printf("Matching values in range: %.0Lf\n",matches);
