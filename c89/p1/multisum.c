@@ -103,11 +103,9 @@ int main (int argc, char **argv)
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
 
   /* Argument parsing */
-  #ifdef _P1_FAST
-  max = atol(argv[1]);
-  max--;
-  #else
   max = atof(argv[1]);
+  #ifdef _P1_FAST
+  max--;
   #endif
   num_divisors = argc-2;
   divisors = malloc(num_divisors*sizeof(DATA));
@@ -119,11 +117,16 @@ int main (int argc, char **argv)
     divisors[i] = atof(argv[i+2]);
     #endif
   }
+  #ifdef _P1_FAST
   printf("Testing range:            0 < n < %.0Lf\n",max+1);
+  #else
+  printf("Testing range:            0 < n < %.0Lf\n",max);
+  #endif
   printf("Data size:                %lu bits\n",(unsigned long)sizeof(DATA)*8);
 
   /* Main computation loops */
   #ifdef _P1_FAST
+  /* Initial summation */
   for (i = 0; i < num_divisors; i++)
   { 
     last_sum = sum; 
@@ -131,6 +134,11 @@ int main (int argc, char **argv)
     sum += n*floor(max/n)*((floor(max/n)+1)/2); 
     if (sum < last_sum) overflows++; 
   }
+  /* Run summation loop on all possible array products
+   * to eliminate excess matches among values that
+   * are divisible by two or more values in the
+   * divisor set
+   */
   products = product_array(divisors,num_divisors);
   i = 0; while (products[i] > 0)
   {
@@ -148,6 +156,7 @@ int main (int argc, char **argv)
 	
   /* Result return and cleanup */ 
   #ifndef _P1_FAST
+  /* Summation function cannot determine exact number of matching values */
   printf("Matching values in range: %.0Lf\n",matches);
   #endif
   printf("Sum of matching values:   %.0Lf\n",sum);
