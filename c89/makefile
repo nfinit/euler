@@ -3,125 +3,23 @@
 # ----------------------------------------------------------------- #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-CC     = gcc
-CFLAGS = -Wall -Wextra -std=c89 -pedantic -Wmissing-prototypes \
-         -Wstrict-prototypes -Wold-style-definition
-OFLAGS = -O2
+CC         = gcc
+CC_VER     = $(shell gcc --version)
+CFLAGS     = -Wall -Wextra -std=c89 -pedantic -Wmissing-prototypes \
+             -Wstrict-prototypes -Wold-style-definition
+OFLAGS     = -O2
 
-CC_OUT = -o
-CC_DEFINE = -D
+CC_OUT     = -o
+CC_DEFINE  = -D
+CC_LIB     = -l
 
-BIN_DIR = ./bin
+BIN_DIR    = ./bin
 
-P1_FILES = ./p1/multisum.c
-P1_EXEC  = $(BIN_DIR)/multisum
+n          = 1000
 
-p1: setup
-	@echo "P1: Building solution..."
-	$(CC) $(CFLAGS) -lm $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
-	@echo "*** Build complete ***"
-
-p1test: setup
-	@echo "P1: Building solution for testing..."
-	$(CC) $(CFLAGS) -lm $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
-	@echo ""
-	@echo "*** Test 01: No input ***"
-	$(P1_EXEC)
-	@echo ""
-	@echo "*** Test 02: Multiples of 3 or 5 < 10 ***"
-	$(P1_EXEC) 10 3 5
-	@echo ""
-	@echo "*** Test 03: Multiples of 3 or 5 < 1000 ***"
-	$(P1_EXEC) 1000 3 5
-	@echo ""
-	@echo "*** Test 04: Multiples of 3, 5 or 7 < 10000 ***"
-	$(P1_EXEC) 10000 3 5 7
-	@echo ""
-	@echo "*** Testing completed ***"
-
-p1fasttest: setup
-	@echo "P1: Building solution for testing..."
-	$(CC) $(CFLAGS) -lm $(CC_DEFINE)_P1_FAST $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
-	@echo ""
-	@echo "*** Test 01: No input ***"
-	$(P1_EXEC)
-	@echo ""
-	@echo "*** Test 02: Multiples of 3 or 5 < 10 ***"
-	$(P1_EXEC) 10 3 5
-	@echo ""
-	@echo "*** Test 03: Multiples of 3 or 5 < 1000 ***"
-	$(P1_EXEC) 1000 3 5
-	@echo ""
-	@echo "*** Test 04: Multiples of 3, 5 or 7 < 10000 ***"
-	$(P1_EXEC) 10000 3 5 7
-	@echo ""
-	@echo "*** Testing completed ***"
-
-p1bench: setup
-	@echo "P1: Building solution for benchmarking..."
-	$(CC) $(CFLAGS) -lm $(OFLAGS) $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
-	@echo ""
-	@echo "*** Trial 01: Multiples of 3 < 1000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000 3"
-	@echo ""
-	@echo "*** Trial 02: Multiples of 3 or 5 < 1000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000 3 5"
-	@echo ""
-	@echo "*** Trial 03: Multiples of 3, 5, 7 or 11 < 1000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000 3 5 7 11"
-	@echo ""
-	@echo "*** Trial 04: Multiples of 3 < 1000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000 3"
-	@echo ""
-	@echo "*** Trial 05: Multiples of 3 or 5 < 1000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000 3 5"
-	@echo ""
-	@echo "*** Trial 06: Multiples of 3, 5, 7 or 11 < 1000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000 3 5 7 11"
-	@echo ""
-	@echo "*** Trial 07: Multiples of 3 < 1000000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000000 3"
-	@echo ""
-	@echo "*** Trial 08: Multiples of 3 or 5 < 1000000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000000 3 5"
-	@echo ""
-	@echo "*** Trial 09: Multiples of 3, 5, 7 or 11 < 1000000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000000 3 5 7 11"
-	@echo ""
-	@echo "*** Testing completed ***"
-
-p1fastbench: setup
-	@echo "P1: Building solution for benchmarking..."
-	$(CC) $(CFLAGS) -lm $(CC_DEFINE)_P1_FAST $(OFLAGS) $(P1_FILES) $(CC_OUT) $(P1_EXEC) 
-	@echo ""
-	@echo "*** Trial 01: Multiples of 3 < 1000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000 3"
-	@echo ""
-	@echo "*** Trial 02: Multiples of 3 or 5 < 1000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000 3 5"
-	@echo ""
-	@echo "*** Trial 03: Multiples of 3, 5, 7 or 11 < 1000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000 3 5 7 11"
-	@echo ""
-	@echo "*** Trial 04: Multiples of 3 < 1000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000 3"
-	@echo ""
-	@echo "*** Trial 05: Multiples of 3 or 5 < 1000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000 3 5"
-	@echo ""
-	@echo "*** Trial 06: Multiples of 3, 5, 7 or 11 < 1000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000 3 5 7 11"
-	@echo ""
-	@echo "*** Trial 07: Multiples of 3 < 1000000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000000 3"
-	@echo ""
-	@echo "*** Trial 08: Multiples of 3 or 5 < 1000000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000000 3 5"
-	@echo ""
-	@echo "*** Trial 09: Multiples of 3, 5, 7 or 11 < 1000000000 ***"
-	@/usr/bin/env bash -c "time $(P1_EXEC) 1000000000 3 5 7 11"
-	@echo ""
-	@echo "*** Testing completed ***"
+P1_FILES   = ./p1/multisum.c
+P1_EXEC    = $(BIN_DIR)/multisum
+P1_EXEC_SL = $(P1_EXEC)-bruteforce
 
 setup:
 	@echo "Setting up directories..."
@@ -130,3 +28,28 @@ setup:
 clean:
 	@echo "Cleaning up environment..."
 	@rm -rf $(BIN_DIR)
+
+p1: setup
+	@echo "P1: Building solutions..."
+	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P1_FILES) $(CC_OUT) $(P1_EXEC_SL)
+	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(CC_DEFINE)_P1_FAST $(P1_FILES) $(CC_OUT) $(P1_EXEC)
+	@echo "*** Build complete ***"
+
+validate-p1: p1
+	@echo "P1: Running validation tests..."
+	@echo "*** BRUTE-FORCE ALGORITHM"
+	$(P1_EXEC_SL) 10 3 5
+	$(P1_EXEC_SL) 1000 3 5
+	@echo "*** FAST ALGORITHM"
+	$(P1_EXEC) 10 3 5
+	$(P1_EXEC) 1000 3 5
+
+benchmark-p1: p1
+	@echo "P1: Running benchmark tests..."
+	@echo "Compiler: $(CC_VER)"
+	@echo "Optimization flags: $(OFLAGS)"
+	@echo "Search: 3, 5, 7, 11, 13 in range 0 < n < $(n)"
+	@echo "Using fast summation:"
+	@/usr/bin/env bash -c "time $(P1_EXEC_SL) $(n) 3 5 7 11 13"
+	@echo "Using brute-force search:"
+	@/usr/bin/env bash -c "time $(P1_EXEC) $(n) 3 5 7 11 13"
