@@ -47,9 +47,10 @@ DATA *product_array (DATA *values, unsigned long num_values)
 {
   DATA *products, *temp;
   unsigned long num_products, current_product, n, c, level, i;
-  current_product = 0;
+  current_product = 0; num_products = 0;
   for (n = 1; n <= num_values; n++) num_products += combination(num_values,n);
   num_products -= num_values;
+  printf("Product tables:           %lu bytes\n",(num_values+num_products)*sizeof(DATA));
   products = malloc(num_products*sizeof(DATA));
   temp = malloc((num_values)*sizeof(DATA));
   for (i = 0; i < num_values; i++) temp[i] = values[i];
@@ -62,8 +63,8 @@ DATA *product_array (DATA *values, unsigned long num_values)
       for (i = level+1; i < num_values; i++) products[current_product++] = temp[i];
     }
   }
-  products[current_product] = -1;
   free(temp);
+  products[current_product] = -1;
   return products;
 }
 #else
@@ -118,7 +119,7 @@ int main (int argc, char **argv)
     divisors[i] = atof(argv[i+2]);
     #endif
   }
-  printf("Testing range:            0 < n < %.0Lf\n",max);
+  printf("Testing range:            0 < n < %.0Lf\n",max+1);
   printf("Data size:                %lu bits\n",(unsigned long)sizeof(DATA)*8);
 
   /* Main computation loops */
