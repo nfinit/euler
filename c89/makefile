@@ -50,6 +50,6 @@ benchmark-p1: p1
 	@echo "Optimization flags: $(OFLAGS)"
 	@echo "Search: 3, 5, 7, 11, 13 in range 0 < n < $(n)"
 	@echo "Using fast summation:"
-	@/usr/bin/env bash -c "time $(P1_EXEC_SL) $(n) 3 5 7 11 13"
-	@echo "Using brute-force search:"
 	@/usr/bin/env bash -c "time $(P1_EXEC) $(n) 3 5 7 11 13"
+	@echo "Using brute-force search:"
+	@/usr/bin/env bash -c "time $(P1_EXEC_SL) $(n) 3 5 7 11 13"
