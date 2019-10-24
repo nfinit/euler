@@ -12,8 +12,10 @@
 /* TYPE DEFINITIONS */
 typedef long double DATA;
 #define DATA_FORMAT "%.0Lf"
+typedef unsigned long INDEX;
+#define INDEX_FORMAT "%lu"
 
-char is_multiple (DATA n, DATA *divisors, unsigned long num_divisors);
+char is_multiple (DATA n, DATA *divisors, INDEX num_divisors);
 
 /* BEGIN PROGRAM LOGIC */
 
@@ -21,9 +23,9 @@ char is_multiple (DATA n, DATA *divisors, unsigned long num_divisors);
  * Checks if a given number is a multiple of any one of the
  * arbitrary values given in the provided array.
  */
-char is_multiple (DATA n, DATA *divisors, unsigned long num_divisors)
+char is_multiple (DATA n, DATA *divisors, INDEX num_divisors)
 { 
-  unsigned long i; 
+  INDEX i; 
   for (i = 0; i < num_divisors; i++) 
     if (fmod(n,divisors[i]) == 0) return 1; 
   return 0; 
@@ -38,7 +40,7 @@ int main (int argc, char **argv)
 {
   /* Variable declarations and setup */
   DATA max, sum, n, *divisors, matches;
-  unsigned long i, num_divisors;
+  INDEX i, num_divisors;
   sum = 0; matches = 0;
 
   /* Argument parsing */
@@ -50,11 +52,11 @@ int main (int argc, char **argv)
 
   /* Pre-run statistics */
   printf("Testing range:    0 < n < " DATA_FORMAT "\n",max);
-  printf("Data size:        %lu bits\n",(unsigned long)sizeof(DATA)*8);
+  printf("Data size:        " INDEX_FORMAT " bits\n",(INDEX)sizeof(DATA)*8);
 
   /* Main computation loop */
   for (n = 1; n < max; n++) 
-    if (is_multiple(n,divisors,(unsigned long)argc-2)) 
+    if (is_multiple(n,divisors,(INDEX)argc-2)) 
     { matches++; sum += n; }
 	
   /* Result return and cleanup */ 
