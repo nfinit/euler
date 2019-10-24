@@ -37,7 +37,6 @@ P1_EXEC  = $(BIN_DIR)/multisum
 p1: setup
 	@echo "P1: Building solutions..."
 	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P1_FILES) $(CC_OUT) $(P1_EXEC)
-	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(CC_DEFINE)_P1_FAST $(P1_FILES) $(CC_OUT) $(P1_EXEC)
 	@echo "*** BUILD COMPLETE ***"
 
 validate-p1: p1
@@ -45,6 +44,8 @@ validate-p1: p1
 	@echo "P1: Running validation tests..."
 	@echo ""
 	$(P1_EXEC) 10 3 5
+	@echo ""
+	$(P1_EXEC) 10 2 4 6 
 	@echo ""
 	$(P1_EXEC) 1000 3 5
 	@echo ""
