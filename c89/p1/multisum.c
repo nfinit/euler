@@ -24,12 +24,23 @@ typedef unsigned long INDEX;
 #define INDEX_FORMAT "%lu"
 
 /* FUNCTION PROTOTYPES */
+char is_multiple (DATA n, DATA *set, INDEX set_size);
 DATA factorial (DATA n);
 DATA combination (DATA n, DATA r);
 DATA *optimize_divisors (DATA *set, INDEX *set_size);
 DATA *product_table (DATA *set, INDEX set_size);
 
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* is_multiple (n, set, set_size)
+ * Determines if n is a multiple of any member of the given set.
+ */
+char is_multiple (DATA n, DATA *set, INDEX set_size)
+{
+  INDEX i; for (i = 0; i < set_size; i++)
+    if (fmod(n,set[i]) == 0) return 1;
+  return 0;
+}
 
 /* factorial(n)
  * Returns the factorial of n. One-line ternary/recursive implementation from
@@ -68,7 +79,8 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
 
   /* Allocate new optimized set with null terminator */
   optimized_set = (DATA *)calloc(optimized_set_size+1,sizeof(DATA));
-  
+  if (!optimized_set) { printf("ERROR: Divisor optimization failed due to memory allocation error!\n"); return set; }
+
   /* Copy remaining values in old set to new set */
   j = 0; for (i = 0; i < orig_set_size; i++)
     if (set[i] > 0) { optimized_set[j] = set[i]; j++; }
@@ -107,6 +119,13 @@ DATA *product_table (DATA *set, INDEX set_size)
 
   /* Initialize the product table */
   product_table = calloc(product_table_size,sizeof(DATA));
+
+  /* Check if memory allocation succeeded */
+  if (!product_table)
+  {
+    printf("ERROR: Product table allocation failure!\n");
+    return product_table;
+  }
 
   /* Populate the product table with the products of the power
    * set of the input set (excluding singletons and the empty set)
@@ -166,21 +185,30 @@ int main (int argc, char **argv)
 
   /* Generate divisor product table */
   divisor_products = product_table(divisors,num_divisors);
+  if (!divisor_products)
+  {
+    printf("Using brute force search...\n");
+    for (i = 1; i <= max; i++)
+      if (is_multiple(i,divisors,num_divisors)) sum+= i;
+  } 
+  else 
+  {
 
-  /* Initial summation pass over divisor table */
-  i = 0; while (divisors[i] > 0)
-    { n = divisors[i]; sum += floor(n*floor(max/n)*(floor(max/n)+1))/2; i++; }
+    /* Initial summation pass over divisor table */
+    i = 0; while (divisors[i] > 0)
+      { n = divisors[i]; sum += floor(n*floor(max/n)*(floor(max/n)+1))/2; i++; }
 
-  /* Corrective summation pass over divisor product table */
-  i = 0; while (divisor_products[i] > 1)
-  { 
-    n = divisor_products[i];
-    over_sum += floor(n*floor(max/n)*(floor(max/n)+1))/2;
-    i++;
+    /* Corrective summation pass over divisor product table */
+    i = 0; while (divisor_products[i] > 1)
+    { 
+      n = divisor_products[i];
+      over_sum += floor(n*floor(max/n)*(floor(max/n)+1))/2;
+      i++;
+    }
+
+    /* Correct final summation by subtracting the sum of any over-matched values */
+    sum -= over_sum;
   }
-
-  /* Correct final summation by subtracting the sum of any over-matched values */
-  sum -= over_sum;
 
   /* Result return and cleanup */ 
   printf("Sum of matches:   " DATA_FORMAT "\n",sum);

@@ -31,14 +31,15 @@ clean:
 
 #   PROJECT 1  //  PROJECT 1  //  PROJECT 1  //  PROJECT 1  //  PROJECT 1   #
 
-P1_FILES   = ./p1/multisum.c
+P1_FILE    = ./p1/multisum.c
+P1_BF_FILE = ./p1/multisum-bruteforce.c
 P1_EXEC    = $(BIN_DIR)/multisum
 P1_EXEC_BF = $(BIN_DIR)/brutesum
 
 p1: setup
 	@echo "P1: Building solutions..."
-	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P1_FILES) $(CC_OUT) $(P1_EXEC)
-	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P1_FILES) $(CC_OUT) $(P1_EXEC_BF)
+	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P1_FILE) $(CC_OUT) $(P1_EXEC)
+	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P1_BF_FILE) $(CC_OUT) $(P1_EXEC_BF)
 	@echo "*** BUILD COMPLETE ***"
 
 validate-p1: p1
@@ -56,6 +57,9 @@ validate-p1: p1
 	@echo ""
 	$(P1_EXEC_BF) 1000 3 5 7 11
 	$(P1_EXEC) 1000 3 5 7 11
+	@echo ""
+	$(P1_EXEC_BF) 1000 3 5 7 11 13 17 19 23 29
+	$(P1_EXEC) 1000 3 5 7 11 13 17 19 23 29
 	@echo ""
 	@echo "*** VALIDATION TEST COMPLETE ***"
 
