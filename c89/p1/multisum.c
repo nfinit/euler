@@ -23,17 +23,16 @@ DATA *product_table (DATA *set, INDEX set_size);
 /* BEGIN PROGRAM LOGIC */
 
 /* factorial(n)
- *  * Returns the factorial of n. One-line ternary implementation from
- *   * https://www.geeksforgeeks.org/program-for-factorial-of-a-number/
- *    * pending later optimization.
- *     */
+ * Returns the factorial of n. One-line ternary/recursive implementation from
+ * https://www.geeksforgeeks.org/program-for-factorial-of-a-number/
+ */
 DATA factorial (DATA n)
 { return (n==1 || n==0) ? 1: n * factorial(n - 1); }
 
 /* combination(n)
- *  * Returns the number of possible combinations of r objects
- *   * from a set of n objects.
- *    */
+ * Returns the number of possible combinations of r objects
+ * from a set of n objects.
+ */
 DATA combination (DATA n, DATA r)
 { return floor(factorial(n)/(factorial(r))*factorial(n-r)); }
 
@@ -52,10 +51,9 @@ DATA *optimize_divisors (DATA *set, INDEX set_size)
   for (i = 0; i < set_size; i++) {
     for (j = 0; j < set_size; j++)
     {
-      if (set[j] == -1) break;
       if ((j == i) || set[j] == -1) continue;
       if ((fmod(set[i],set[j]) == 0) || set[i] < 1) 
-      { set[i] = -1; optimized_set_size--; } 
+      { set[i] = -1; optimized_set_size--; break; } 
     }
   }
 
@@ -64,13 +62,7 @@ DATA *optimize_divisors (DATA *set, INDEX set_size)
   
   /* Copy remaining values in old set to new set */
   j = 0; for (i = 0; i < set_size; i++)
-  {
-    if (set[i] > 0)
-    {
-      optimized_set[j] = set[i];
-      j++;
-    }
-  }
+    if (set[i] > 0) { optimized_set[j] = set[i]; j++; }
 
   /* Print contents of optimized array */
   printf("Optimized search: {");
