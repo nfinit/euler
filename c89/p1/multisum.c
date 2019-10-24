@@ -25,7 +25,7 @@ typedef unsigned long INDEX;
 
 DATA factorial (DATA n);
 DATA combination (DATA n, DATA r);
-DATA *optimize_divisors (DATA *set, INDEX set_size);
+DATA *optimize_divisors (DATA *set, INDEX *set_size);
 DATA *product_table (DATA *set, INDEX set_size);
 
 /* BEGIN PROGRAM LOGIC */
@@ -49,16 +49,16 @@ DATA combination (DATA n, DATA r)
  * divisible by some other element in the set, for eliminating
  * duplicated matches when using the fast summation formula.
  */
-DATA *optimize_divisors (DATA *set, INDEX set_size)
+DATA *optimize_divisors (DATA *set, INDEX *set_size)
 {
   /* Declarations and initializations */
   DATA *optimized_set;
-  INDEX optimized_set_size, i, j;
-  optimized_set_size = set_size;
+  INDEX optimized_set_size, orig_set_size, i, j;
+  optimized_set_size = *set_size; orig_set_size = *set_size;
 
   /* Pass through input set and flag divisible values */
-  for (i = 0; i < set_size; i++) {
-    for (j = 0; j < set_size; j++)
+  for (i = 0; i < orig_set_size; i++) {
+    for (j = 0; j < orig_set_size; j++)
     {
       if ((j == i) || set[j] == -1) continue;
       if ((fmod(set[i],set[j]) == 0) || set[i] < 1) 
@@ -70,7 +70,7 @@ DATA *optimize_divisors (DATA *set, INDEX set_size)
   optimized_set = (DATA *)calloc(optimized_set_size+1,sizeof(DATA));
   
   /* Copy remaining values in old set to new set */
-  j = 0; for (i = 0; i < set_size; i++)
+  j = 0; for (i = 0; i < orig_set_size; i++)
     if (set[i] > 0) { optimized_set[j] = set[i]; j++; }
 
   /* Print contents of optimized array */
@@ -81,8 +81,8 @@ DATA *optimize_divisors (DATA *set, INDEX set_size)
   if (optimized_set_size*sizeof(DATA) != 1) printf("s");
   printf(")\n");
 
-  /* Return the new optimized set, and free the old one */
-  free(set); return optimized_set;
+  /* Return the new optimized set, adjust the size counter, and free the old one */
+  free(set); *set_size = optimized_set_size; return optimized_set;
 }
 
 /* product_table(set, set_size)
@@ -148,13 +148,13 @@ int main (int argc, char **argv)
   /* Argument parsing */
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
   max = floor(atof(argv[1])); max--;
-  if (max < 1) { printf("ERROR: %s only operates on positive integers!\n"); return 0; }
+  if (max < 1) { printf("ERROR: %s only operates on positive integers!\n",argv[0]); return 0; }
   num_divisors = argc-2;
   divisors = (DATA *)calloc(num_divisors,sizeof(DATA));
   for (i = 0; i < num_divisors; i++) 
   { 
     divisors[i] = floor(atof(argv[i+2]));
-    if (divisors[i] < 1) { printf("ERROR: %s only operates on positive integers!\n"); return 0; }
+    if (divisors[i] < 1) { printf("ERROR: %s only operates on positive integers!\n",argv[0]); return 0; }
   }
 
   /* Print pre-run statistics */
@@ -162,7 +162,7 @@ int main (int argc, char **argv)
   printf("Data size:        " INDEX_FORMAT " bits\n",(INDEX)sizeof(DATA)*8);
 
   /* Optimize divisor set */
-  divisors = optimize_divisors(divisors,num_divisors);
+  divisors = optimize_divisors(divisors,&num_divisors);
 
   /* Generate divisor product table */
   divisor_products = product_table(divisors,num_divisors);
