@@ -45,17 +45,17 @@ validate-p1: p1
 	@echo ""
 	@echo "P1: Running validation tests..."
 	@echo ""
-	$(shell $(P1_EXEC_BF) 10 3 5 | grep "Sum of matches")
-	$(shell $(P1_EXEC) 10 3 5 | grep "Sum of matches")
+	$(P1_EXEC_BF) 10 3 5
+	$(P1_EXEC) 10 3 5
 	@echo ""
-	$(shell $(P1_EXEC_BF) 10 2 4 6 | grep "Sum of matches")
-	$(shell $(P1_EXEC) 10 2 4 6 | grep "Sum of matches")
+	$(P1_EXEC_BF) 10 2 4 6
+	$(P1_EXEC) 10 2 4 6
 	@echo ""
-	$(shell $(P1_EXEC_BF) 1000 3 5 | grep "Sum of matches")
-	$(shell $(P1_EXEC) 1000 3 5 | grep "Sum of matches")
+	$(P1_EXEC_BF) 1000 3 5
+	$(P1_EXEC) 1000 3 5
 	@echo ""
-	$(shell $(P1_EXEC_BF) 1000 3 5 7 11 | grep "Sum of matches")
-	$(shell $(P1_EXEC) 1000 3 5 7 11 | grep "Sum of matches")
+	$(P1_EXEC_BF) 1000 3 5 7 11
+	$(P1_EXEC) 1000 3 5 7 11
 	@echo ""
 	@echo "*** VALIDATION TEST COMPLETE ***"
 
