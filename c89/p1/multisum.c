@@ -2,8 +2,16 @@
  * If we list all the natural numbers below 10 that are multiples of 3 or 5,
  * we get 3, 5, 6 and 9. The sum of these multiples is 23.
  * Find the sum of all the multiples of 3 or 5 below 1000.
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * SOLUTION: Summation function
+ * This solution implements a fast summation taking advantage of the
+ * arithmetic sequence present in the set of all values divisible by n in
+ * a given range. This program accepts arbitrary maximums and arbitrary 
+ * sets of positive integer arguments, compensating for duplicate matches 
+ * by eliminating sums of values divisible by products of the input set as
+ * well as optimizing the input set itself.
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+ 
 /* INCLUDES */
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +51,7 @@ DATA combination (DATA n, DATA r)
  */
 DATA *optimize_divisors (DATA *set, INDEX set_size)
 {
+  /* Declarations and initializations */
   DATA *optimized_set;
   INDEX optimized_set_size, i, j;
   optimized_set_size = set_size;
@@ -73,8 +82,7 @@ DATA *optimize_divisors (DATA *set, INDEX set_size)
   printf(")\n");
 
   /* Return the new optimized set, and free the old one */
-  free(set);
-  return optimized_set;
+  free(set); return optimized_set;
 }
 
 /* product_table(set, set_size)
@@ -101,26 +109,27 @@ DATA *product_table (DATA *set, INDEX set_size)
   product_table = calloc(product_table_size,sizeof(DATA));
 
   /* Populate the product table with the products of the power
-   * set of the input set
+   * set of the input set (excluding singletons and the empty set)
    */
   for (i = 0; i < power_set_size; i++)
   { 
-    /* GET PRODUCT */
+    /* Get product */
     for (j = 0; j < set_size; j++) 
       if (i & (1<<j)) 
         { current_product *= set[j]; }
 
-    /* VALIDATE PRODUCT */
+    /* Validate product */
     for (j = 0; j < set_size; j++) 
       if (current_product == set[j]) 
         { current_product = 1; break; }
     if (current_product <= 1) continue;
 
-    /* ADD PRODUCT TO TABLE AND RESET */
+    /* Add product to table and reset */
     product_table[n] = current_product;
     n++; current_product = 1;
   }
 
+  /* Product table is generated; return */
   return product_table;
 }
 
@@ -139,11 +148,16 @@ int main (int argc, char **argv)
   /* Argument parsing */
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
   max = floor(atof(argv[1])); max--;
+  if (max < 1) { printf("ERROR: %s only operates on positive integers!\n"); return 0; }
   num_divisors = argc-2;
   divisors = (DATA *)calloc(num_divisors,sizeof(DATA));
-  for (i = 0; i < num_divisors; i++) divisors[i] = floor(atof(argv[i+2]));
+  for (i = 0; i < num_divisors; i++) 
+  { 
+    divisors[i] = floor(atof(argv[i+2]));
+    if (divisors[i] < 1) { printf("ERROR: %s only operates on positive integers!\n"); return 0; }
+  }
 
-  /* Pre-run statistics */
+  /* Print pre-run statistics */
   printf("Testing range:    0 < n < " DATA_FORMAT "\n",max+1);
   printf("Data size:        " INDEX_FORMAT " bits\n",(INDEX)sizeof(DATA)*8);
 
@@ -165,10 +179,10 @@ int main (int argc, char **argv)
     i++;
   }
 
+  /* Correct final summation by subtracting the sum of any over-matched values */
   sum -= over_sum;
 
   /* Result return and cleanup */ 
   printf("Sum of matches:   " DATA_FORMAT "\n",sum);
-  free(divisors);
-  return 0;
+  free(divisors); return 0;
 }
