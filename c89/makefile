@@ -55,8 +55,14 @@ validate-p1: p1
 	$(P1_EXEC_BF) 1000 3 5
 	$(P1_EXEC) 1000 3 5
 	@echo ""
-	$(P1_EXEC_BF) 1000 3 5 7 11
-	$(P1_EXEC) 1000 3 5 7 11
+	$(P1_EXEC_BF) 105 3 5 7 11
+	$(P1_EXEC) 105 3 5 7 11
+	@echo ""
+	$(P1_EXEC_BF) 106 3 5 7 11
+	$(P1_EXEC) 106 3 5 7 11
+	@echo ""
+	$(P1_EXEC_BF) 107 3 5 7 11
+	$(P1_EXEC) 107 3 5 7 11
 	@echo ""
 	$(P1_EXEC_BF) 1000 3 5 7 11 13 17 19 23 29
 	$(P1_EXEC) 1000 3 5 7 11 13 17 19 23 29

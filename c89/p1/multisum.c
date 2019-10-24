@@ -28,7 +28,7 @@ char is_multiple (DATA n, DATA *set, INDEX set_size);
 DATA factorial (DATA n);
 DATA combination (DATA n, DATA r);
 DATA *optimize_divisors (DATA *set, INDEX *set_size);
-DATA *product_table (DATA *set, INDEX set_size);
+DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products);
 
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -102,13 +102,14 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
  * products of the values it contains. Used for elimination of
  * duplicate matches when using the fast summation formula.
  */
-DATA *product_table (DATA *set, INDEX set_size)
+DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products)
 {
   /* Variable declaration and initialization */
   DATA current_product, *product_table;
   INDEX power_set_size, product_table_size, i, j, n;
   power_set_size = pow(2, set_size);
   product_table_size = 0; current_product = 1; n = 0;
+  *set_products = 0;
 
   /* Determine size of product table */
   for (i = 1; i <= set_size; i++) 
@@ -149,6 +150,7 @@ DATA *product_table (DATA *set, INDEX set_size)
   }
 
   /* Product table is generated; return */
+  *set_products = product_table_size;
   return product_table;
 }
 
@@ -160,9 +162,9 @@ DATA *product_table (DATA *set, INDEX set_size)
 int main (int argc, char **argv)
 {
   /* Variable declarations and setup */
-  DATA max, sum, over_sum, n, *divisors, *divisor_products;
-  INDEX i, num_divisors;
-  sum = 0; over_sum = 0;
+  DATA max, sum, over_sum, n, *divisors, *divisor_products, p;
+  INDEX i, num_divisors, num_products;
+  sum = 0; over_sum = 0; num_products = 0;
 
   /* Argument parsing */
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
@@ -184,7 +186,7 @@ int main (int argc, char **argv)
   divisors = optimize_divisors(divisors,&num_divisors);
 
   /* Generate divisor product table */
-  divisor_products = product_table(divisors,num_divisors);
+  divisor_products = product_table(divisors,num_divisors,&num_products);
   if (!divisor_products)
   {
     printf("Using brute force search...\n");
@@ -193,16 +195,19 @@ int main (int argc, char **argv)
   } 
   else 
   {
+    /* Optimize product table */
+    divisor_products = optimize_divisors(divisor_products,&num_products);
 
     /* Initial summation pass over divisor table */
     i = 0; while (divisors[i] > 0)
-      { n = divisors[i]; sum += floor(n*floor(max/n)*(floor(max/n)+1))/2; i++; }
+      { n = divisors[i]; sum += floor(n*floor(max/n)*(floor(max/n)+1)/2); i++; }
 
     /* Corrective summation pass over divisor product table */
     i = 0; while (divisor_products[i] > 1)
     { 
       n = divisor_products[i];
-      over_sum += floor(n*floor(max/n)*(floor(max/n)+1))/2;
+      p = floor(n*floor(max/n)*(floor(max/n)+1)/2);
+      over_sum += p;
       i++;
     }
 
