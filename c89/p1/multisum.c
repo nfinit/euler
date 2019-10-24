@@ -23,12 +23,13 @@ typedef long double DATA;
 typedef unsigned long INDEX;
 #define INDEX_FORMAT "%lu"
 
+/* FUNCTION PROTOTYPES */
 DATA factorial (DATA n);
 DATA combination (DATA n, DATA r);
 DATA *optimize_divisors (DATA *set, INDEX *set_size);
 DATA *product_table (DATA *set, INDEX set_size);
 
-/* BEGIN PROGRAM LOGIC */
+/* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* factorial(n)
  * Returns the factorial of n. One-line ternary/recursive implementation from
@@ -57,14 +58,13 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
   optimized_set_size = *set_size; orig_set_size = *set_size;
 
   /* Pass through input set and flag divisible values */
-  for (i = 0; i < orig_set_size; i++) {
+  for (i = 0; i < orig_set_size; i++)
     for (j = 0; j < orig_set_size; j++)
     {
       if ((j == i) || set[j] == -1) continue;
       if ((fmod(set[i],set[j]) == 0) || set[i] < 1) 
       { set[i] = -1; optimized_set_size--; break; } 
     }
-  }
 
   /* Allocate new optimized set with null terminator */
   optimized_set = (DATA *)calloc(optimized_set_size+1,sizeof(DATA));
