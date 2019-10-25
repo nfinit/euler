@@ -29,13 +29,17 @@ typedef struct {
 } PAIR;
 
 /* FUNCTION PROTOTYPES */
-INDEX is_multiple (DATA n, DATA *set, INDEX set_size);
-DATA  factorial (DATA n);
-DATA  combination (DATA n, DATA r);
-DATA  sum_divisible (DATA n, DATA max);
-DATA  brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max);
-DATA  correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status);
-DATA  *optimize_divisors (DATA *set, INDEX *set_size);
+INDEX  is_multiple        (DATA n, DATA *set, INDEX set_size);
+DATA   *optimize_divisors (DATA *set, INDEX *set_size);
+DATA   brute_force_sum    (DATA *divisors, INDEX num_divisors, DATA max);
+
+#ifndef _P1_BRUTEFORCE
+/* Fast algorithm functions */
+DATA factorial     (DATA n);
+DATA combination   (DATA n, DATA r);
+DATA sum_divisible (DATA n, DATA max);
+DATA correction    (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status);
+#endif
 
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -49,6 +53,65 @@ INDEX is_multiple (DATA n, DATA *set, INDEX set_size)
     if (fmod(n,set[i]) == 0) return 1;
   return 0;
 }
+
+/* optimize_divisors(set, set_size)
+ * Flags and removes any elements in the given set that are
+ * divisible by some other element in the set, for eliminating
+ * duplicated matches when using the fast summation formula.
+ */
+DATA *optimize_divisors (DATA *set, INDEX *set_size)
+{
+  /* Declarations and initializations */
+  DATA *optimized_set;
+  INDEX optimized_set_size, orig_set_size, i, j;
+  optimized_set_size = *set_size; orig_set_size = *set_size;
+
+  /* Pass through input set and flag divisible values */
+  for (i = 0; i < orig_set_size; i++)
+    for (j = 0; j < orig_set_size; j++)
+    {
+      if ((j == i) || set[j] == -1) continue;
+      if ((fmod(set[i],set[j]) == 0) || set[i] < 1) 
+      { set[i] = -1; optimized_set_size--; break; } 
+    }
+
+  /* Allocate new optimized set with null terminator */
+  optimized_set = (DATA *)calloc(optimized_set_size+1,sizeof(DATA));
+  if (!optimized_set) { printf("ERROR: Divisor optimization failed due to memory allocation error!\n"); return set; }
+
+  /* Copy remaining values in old set to new set */
+  j = 0; for (i = 0; i < orig_set_size; i++)
+    if (set[i] > 0) { optimized_set[j] = set[i]; j++; }
+
+  /* Print contents of optimized array */
+  printf("Optimized search: {");
+  for (i = 0; i < optimized_set_size; i++)
+  { printf("%.0Lf",optimized_set[i]); if (i != optimized_set_size - 1) printf(", "); } 
+  printf("} (%lu byte",optimized_set_size*sizeof(DATA));
+  if (optimized_set_size*sizeof(DATA) != 1) printf("s");
+  printf(")\n");
+
+  /* Return the new optimized set, adjust the size counter, and free the old one */
+  free(set); *set_size = optimized_set_size; return optimized_set;
+}
+
+/* brute_force_sum(divisors,num_divisors,max)
+ * Performs a brute force search of values divisible by the input
+ * set in the range 0 < n < max; O(n) fallback in case memory
+ * allocation fails while generating the sum correction for
+ * the faster O(1) algorithm
+ */
+DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max)
+{
+ DATA sum, matches; INDEX i; sum = 0; matches = 0; 
+ for (i = 1; i <= max; i++) 
+ { if (is_multiple(i,divisors,num_divisors)) { sum += i; matches++; } }
+ printf("Matches in range: " DATA_FORMAT "\n",matches);
+ return sum;
+}
+
+#ifndef _P1_BRUTEFORCE
+/* Functions in this block are only needed for fast summation */
 
 /* factorial(n)
  * Returns the factorial of n. One-line ternary/recursive implementation from
@@ -71,21 +134,6 @@ DATA combination (DATA n, DATA r)
  */
 DATA sum_divisible (DATA n, DATA max)
 { return floor(n*floor(max/n)*(floor(max/n)+1)/2); }
-
-/* brute_force_sum(divisors,num_divisors,max)
- * Performs a brute force search of values divisible by the input
- * set in the range 0 < n < max; O(n) fallback in case memory
- * allocation fails while generating the sum correction for
- * the faster O(1) algorithm
- */
-DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max)
-{
- DATA sum, matches; INDEX i; sum = 0; matches = 0; 
- for (i = 1; i <= max; i++) 
- { if (is_multiple(i,divisors,num_divisors)) { sum += i; matches++; } }
- printf("Matches in range: " DATA_FORMAT "\n",matches);
- return sum;
-}
 
 /* correction(max,set,set_size)
  * Generates a correction to apply to multiple summations
@@ -165,46 +213,8 @@ DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
  return -even_sum+odd_sum;
 }
 
-/* optimize_divisors(set, set_size)
- * Flags and removes any elements in the given set that are
- * divisible by some other element in the set, for eliminating
- * duplicated matches when using the fast summation formula.
- */
-DATA *optimize_divisors (DATA *set, INDEX *set_size)
-{
-  /* Declarations and initializations */
-  DATA *optimized_set;
-  INDEX optimized_set_size, orig_set_size, i, j;
-  optimized_set_size = *set_size; orig_set_size = *set_size;
-
-  /* Pass through input set and flag divisible values */
-  for (i = 0; i < orig_set_size; i++)
-    for (j = 0; j < orig_set_size; j++)
-    {
-      if ((j == i) || set[j] == -1) continue;
-      if ((fmod(set[i],set[j]) == 0) || set[i] < 1) 
-      { set[i] = -1; optimized_set_size--; break; } 
-    }
-
-  /* Allocate new optimized set with null terminator */
-  optimized_set = (DATA *)calloc(optimized_set_size+1,sizeof(DATA));
-  if (!optimized_set) { printf("ERROR: Divisor optimization failed due to memory allocation error!\n"); return set; }
-
-  /* Copy remaining values in old set to new set */
-  j = 0; for (i = 0; i < orig_set_size; i++)
-    if (set[i] > 0) { optimized_set[j] = set[i]; j++; }
-
-  /* Print contents of optimized array */
-  printf("Optimized search: {");
-  for (i = 0; i < optimized_set_size; i++)
-  { printf("%.0Lf",optimized_set[i]); if (i != optimized_set_size - 1) printf(", "); } 
-  printf("} (%lu byte",optimized_set_size*sizeof(DATA));
-  if (optimized_set_size*sizeof(DATA) != 1) printf("s");
-  printf(")\n");
-
-  /* Return the new optimized set, adjust the size counter, and free the old one */
-  free(set); *set_size = optimized_set_size; return optimized_set;
-}
+/* End fast algorithm functions */
+#endif
 
 /* MAIN FUNCTION
  * Takes in the maximum value as the first argument and arbitrary 
