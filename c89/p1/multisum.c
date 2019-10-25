@@ -54,7 +54,7 @@ DATA factorial (DATA n)
  * from a set of n objects.
  */
 DATA combination (DATA n, DATA r)
-{ return floor(factorial(n)/(factorial(r))*factorial(n-r)); }
+{ return floor(factorial(n)/factorial(r))*factorial(n-r); }
 
 /* optimize_divisors(set, set_size)
  * Flags and removes any elements in the given set that are
