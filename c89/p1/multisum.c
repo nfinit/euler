@@ -18,23 +18,24 @@
 #include <math.h>
 
 /* TYPE DEFINITIONS */
-typedef long double DATA;
-#define DATA_FORMAT  "%.0Lf"
+typedef long double   DATA;
+#define DATA_FORMAT   "%.0Lf"
 typedef unsigned long INDEX;
-#define INDEX_FORMAT "%lu"
+#define INDEX_FORMAT  "%lu"
+
 typedef struct {
  DATA *odd;
  DATA *even;
 } PAIR;
 
 /* FUNCTION PROTOTYPES */
-char is_multiple (DATA n, DATA *set, INDEX set_size);
-DATA factorial (DATA n);
-DATA combination (DATA n, DATA r);
-DATA sum_divisible (DATA n, DATA max);
-DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max);
-DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status);
-DATA *optimize_divisors (DATA *set, INDEX *set_size);
+INDEX is_multiple (DATA n, DATA *set, INDEX set_size);
+DATA  factorial (DATA n);
+DATA  combination (DATA n, DATA r);
+DATA  sum_divisible (DATA n, DATA max);
+DATA  brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max);
+DATA  correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status);
+DATA  *optimize_divisors (DATA *set, INDEX *set_size);
 
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -42,7 +43,7 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size);
  * Determines if n is a multiple of any member of the given set.
  * Used in brute force fallback solution.
  */
-char is_multiple (DATA n, DATA *set, INDEX set_size)
+INDEX is_multiple (DATA n, DATA *set, INDEX set_size)
 {
   INDEX i; for (i = 0; i < set_size; i++)
     if (fmod(n,set[i]) == 0) return 1;
@@ -214,8 +215,12 @@ int main (int argc, char **argv)
 {
   /* Variable declarations and setup */
   DATA max, sum, *divisors;
-  INDEX i, num_divisors, correction_flag;
-  sum = 0; correction_flag = 1;
+  INDEX i, num_divisors;
+
+  #ifndef _P1_BRUTEFORCE
+   INDEX correction_flag;
+   correction_flag = 1;
+  #endif
 
   /* Argument parsing */
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
@@ -236,14 +241,21 @@ int main (int argc, char **argv)
   /* Optimize divisor set */
   divisors = optimize_divisors(divisors,&num_divisors);
 
+ #ifndef _P1_BRUTEFORCE
   /* Make initial summation pass and then correct it by eliminating duplicates;
    * fall back to brute force algorithm if correction fails
    */
-  i = 0; while (divisors[i] > 0) { sum += sum_divisible(divisors[i],max); i++; }
+  sum = 0; i = 0; while (divisors[i] > 0) { sum += sum_divisible(divisors[i],max); i++; }
   sum += correction(max,divisors,num_divisors,&correction_flag);
   if (correction_flag) { printf("Using brute force search...\n");
     sum = brute_force_sum(divisors,num_divisors,max);
   } 
+ #else
+  /* Use brute force search in all cases 
+   * if _P1_BRUTEFORCE is defined during compilation
+   */
+  sum = brute_force_sum(divisors,num_divisors,max);
+ #endif
 
   /* Result return and cleanup */ 
   printf("Sum of matches:   " DATA_FORMAT "\n",sum);
