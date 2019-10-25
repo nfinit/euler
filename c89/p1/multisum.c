@@ -23,8 +23,8 @@ typedef long double DATA;
 typedef unsigned long INDEX;
 #define INDEX_FORMAT "%lu"
 typedef struct {
- DATA odd;
- DATA even;
+ DATA *odd;
+ DATA *even;
 } PAIR;
 
 /* FUNCTION PROTOTYPES */
@@ -78,7 +78,7 @@ DATA correction (DATA max, DATA *set, INDEX set_size)
 {
  /* Variable declaration and initialization */
  INDEX power_set_size, odd_size, even_size, factors, i, j, e, o;
- DATA current_product, correction; PAIR correction_table;
+ DATA current_product, correction, odd_sum, even_sum; PAIR *correction_table;
  power_set_size = pow(2, set_size);
  odd_size = 0; even_size = 0; e = 0; o = 0; current_product = 1;
 
@@ -93,14 +93,14 @@ DATA correction (DATA max, DATA *set, INDEX set_size)
  }
 
  /* Print product table target size */  
- printf("Correction tables:    " INDEX_FORMAT " bytes\n",(INDEX)sizeof(DATA)*(even_size+odd_size+sizeof(PAIR)));
+ printf("Correction table: " INDEX_FORMAT " bytes\n",(INDEX)sizeof(DATA)*(even_size+odd_size+sizeof(PAIR)));
 
  /* Initialize the correction table */
  correction_table = malloc(sizeof(PAIR));
  if (!correction_table) { printf("ERROR: Correction table allocation failure!\n"); return 0; }
- correction_table->odd = calloc(odd_size,sizeof(DATA));
+ correction_table->odd = (DATA *)calloc(odd_size+1,sizeof(DATA));
  if (!correction_table->odd) { printf("ERROR: Correction table allocation failure!\n"); return 0; }
- correction_table->even = calloc(even_size,sizeof(DATA));
+ correction_table->even = (DATA *)calloc(even_size+1,sizeof(DATA));
  if (!correction_table->even) { printf("ERROR: Correction table allocation failure!\n"); return 0; }
 
  /* Populate the correction table with the products of the power
@@ -118,7 +118,8 @@ DATA correction (DATA max, DATA *set, INDEX set_size)
   for (j = 0; j < set_size; j++) 
    if (current_product == set[j]) 
     { current_product = 1; break; }
-   if (current_product <= 1) continue;
+   
+  if (current_product <= 1) continue;
 
    /* Add product to even or odd table and reset */
    if (factors%2 == 0) {
@@ -131,12 +132,14 @@ DATA correction (DATA max, DATA *set, INDEX set_size)
  }
 
  /* Generate correction */
- e = 0; o = 0; i = 0; j = 0;
- while (correction_table->odd[i] != 0) { o += sum_divisible(correction_table->odd[i],max); i++; }
- while (correction_table->even[j] != 0) { e += sum_divisible(correction_table->odd[i],max); j++; }
+ o = 0; odd_sum = 0; e = 0; even_sum = 0; 
+ while (correction_table->odd[o] != 0) {
+	 odd_sum += sum_divisible(correction_table->odd[o],max); o++; }
+ while (correction_table->even[e] != 0) { 
+	 even_sum += sum_divisible(correction_table->even[e],max); e++; }
  
  /* Correction is generated; clean up and return correction value */
- correction = 0-e+o;
+ correction = -even_sum+odd_sum;
  free(correction_table->odd); free(correction_table->even);
  free(correction_table);
  return correction;
@@ -248,9 +251,9 @@ DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products)
 int main (int argc, char **argv)
 {
   /* Variable declarations and setup */
-  DATA max, sum, over_sum, n, *divisors, *divisor_products, p;
+  DATA max, sum, sum_correction, n, *divisors, *divisor_products;
   INDEX i, num_divisors, num_products;
-  sum = 0; over_sum = 0; num_products = 0;
+  sum = 0; sum_correction = 0; num_products = 0;
 
   /* Argument parsing */
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
@@ -288,17 +291,11 @@ int main (int argc, char **argv)
     i = 0; while (divisors[i] > 0)
       { n = divisors[i]; sum += floor(n*floor(max/n)*(floor(max/n)+1)/2); i++; }
 
-    /* Corrective summation pass over divisor product table */
-    i = 0; while (divisor_products[i] > 1)
-    { 
-      n = divisor_products[i];
-      p = floor(n*floor(max/n)*(floor(max/n)+1)/2);
-      over_sum += p;
-      i++;
-    }
+    /* Generate correction */
+    sum_correction = correction(max,divisors,num_divisors);
 
-    /* Correct final summation by subtracting the sum of any over-matched values */
-    sum -= over_sum;
+    /* Apply correction */
+    sum += sum_correction;
   }
 
   /* Result return and cleanup */ 
