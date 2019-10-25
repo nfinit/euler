@@ -41,7 +41,7 @@ DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products);
 
 /* is_multiple (n, set, set_size)
  * Determines if n is a multiple of any member of the given set.
- * Used in brute-force fallback solution.
+ * Used in brute force fallback solution.
  */
 char is_multiple (DATA n, DATA *set, INDEX set_size)
 {
@@ -73,7 +73,7 @@ DATA sum_divisible (DATA n, DATA max)
 { return floor(n*floor(max/n)*(floor(max/n)+1)/2); }
 
 /* brute_force_sum(divisors,num_divisors,max)
- * Performs a brute-force search of values divisible by the input
+ * Performs a brute force search of values divisible by the input
  * set in the range 0 < n < max; O(n) fallback in case memory
  * allocation fails while generating the sum correction for
  * the faster O(1) algorithm
@@ -269,9 +269,9 @@ DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products)
 int main (int argc, char **argv)
 {
   /* Variable declarations and setup */
-  DATA max, sum, sum_correction, n, *divisors, *divisor_products;
+  DATA max, sum, *divisors;
   INDEX i, num_divisors, correction_flag;
-  sum = 0; sum_correction = 0; num_products = 0; correction_flag = 1;
+  sum = 0; correction_flag = 1;
 
   /* Argument parsing */
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
@@ -293,9 +293,9 @@ int main (int argc, char **argv)
   divisors = optimize_divisors(divisors,&num_divisors);
 
   /* Make initial summation pass and then correct it by eliminating duplicates;
-   * fall back to brute-force algorithm if correction fails
+   * fall back to brute force algorithm if correction fails
    */
-  i = 0; while (divisors[i] > 0) { sum_divisible(divisors[i],max) i++; }
+  i = 0; while (divisors[i] > 0) { sum += sum_divisible(divisors[i],max); i++; }
   sum += correction(max,divisors,num_divisors,&correction_flag);
   if (correction_flag) { printf("Using brute force search...\n");
     sum = brute_force_sum(divisors,num_divisors,max);
