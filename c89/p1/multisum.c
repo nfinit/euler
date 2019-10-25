@@ -12,6 +12,11 @@
  * well as optimizing the input set itself.
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
  
+/* DEFAULT TO FAST ALGORITHM */
+#ifndef _BRUTEFORCE
+  #define _FAST
+#endif
+
 /* INCLUDES */
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,17 +28,22 @@ typedef long double   DATA;
 typedef unsigned long INDEX;
 #define INDEX_FORMAT  "%lu"
 
+#ifdef _FAST
+/* PAIR struct for differentiating odd/even products
+ * when generating correction tables for the fast algorithm 
+ */
 typedef struct {
- DATA *odd;
- DATA *even;
+  DATA *odd;
+  DATA *even;
 } PAIR;
+#endif
 
 /* FUNCTION PROTOTYPES */
-INDEX  is_multiple        (DATA n, DATA *set, INDEX set_size);
 DATA   *optimize_divisors (DATA *set, INDEX *set_size);
+INDEX  is_multiple        (DATA n, DATA *set, INDEX set_size);
 DATA   brute_force_sum    (DATA *divisors, INDEX num_divisors, DATA max);
 
-#ifndef _P1_BRUTEFORCE
+#ifdef _FAST
 /* Fast algorithm functions */
 DATA factorial     (DATA n);
 DATA combination   (DATA n, DATA r);
@@ -42,17 +52,6 @@ DATA correction    (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status);
 #endif
 
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-/* is_multiple (n, set, set_size)
- * Determines if n is a multiple of any member of the given set.
- * Used in brute force fallback solution.
- */
-INDEX is_multiple (DATA n, DATA *set, INDEX set_size)
-{
-  INDEX i; for (i = 0; i < set_size; i++)
-    if (fmod(n,set[i]) == 0) return 1;
-  return 0;
-}
 
 /* optimize_divisors(set, set_size)
  * Flags and removes any elements in the given set that are
@@ -72,7 +71,7 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
     {
       if ((j == i) || set[j] == -1) continue;
       if ((fmod(set[i],set[j]) == 0) || set[i] < 1) 
-      { set[i] = -1; optimized_set_size--; break; } 
+        { set[i] = -1; optimized_set_size--; break; } 
     }
 
   /* Allocate new optimized set with null terminator */
@@ -86,13 +85,24 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
   /* Print contents of optimized array */
   printf("Optimized search: {");
   for (i = 0; i < optimized_set_size; i++)
-  { printf("%.0Lf",optimized_set[i]); if (i != optimized_set_size - 1) printf(", "); } 
+    { printf("%.0Lf",optimized_set[i]); if (i != optimized_set_size - 1) printf(", "); } 
   printf("} (%lu byte",optimized_set_size*sizeof(DATA));
   if (optimized_set_size*sizeof(DATA) != 1) printf("s");
   printf(")\n");
 
   /* Return the new optimized set, adjust the size counter, and free the old one */
   free(set); *set_size = optimized_set_size; return optimized_set;
+}
+
+/* is_multiple (n, set, set_size)
+ * Determines if n is a multiple of any member of the given set.
+ * Used in brute force fallback solution.
+ */
+INDEX is_multiple (DATA n, DATA *set, INDEX set_size)
+{
+  INDEX i; for (i = 0; i < set_size; i++)
+    if (fmod(n,set[i]) == 0) return 1;
+  return 0;
 }
 
 /* brute_force_sum(divisors,num_divisors,max)
@@ -105,12 +115,12 @@ DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max)
 {
  DATA sum, matches; INDEX i; sum = 0; matches = 0; 
  for (i = 1; i <= max; i++) 
- { if (is_multiple(i,divisors,num_divisors)) { sum += i; matches++; } }
+   if (is_multiple(i,divisors,num_divisors)) { sum += i; matches++; }
  printf("Matches in range: " DATA_FORMAT "\n",matches);
  return sum;
 }
 
-#ifndef _P1_BRUTEFORCE
+#ifdef _FAST
 /* Functions in this block are only needed for fast summation */
 
 /* factorial(n)
@@ -152,11 +162,11 @@ DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
  /* Determine size of correction tables */
  for (i = 1; i <= set_size; i++)
  {
-  if (i%2 == 0) {
-   even_size += combination(set_size,i);
-  } else {
-   odd_size += combination(set_size,i);
-  }
+   if (i%2 == 0) {
+     even_size += combination(set_size,i);
+   } else {
+     odd_size += combination(set_size,i);
+   }
  }
 
  /* Print product table target size */  
@@ -179,32 +189,31 @@ DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
    /* Get product */
    for (j = 0; j < set_size; j++) 
      if (i & (1<<j)) 
-       { current_product *= set[j]; factors++; }
+      { current_product *= set[j]; factors++; }
 
   /* Validate product */
   for (j = 0; j < set_size; j++) 
-   if (current_product == set[j]) 
-    { current_product = 1; break; }
-   
+    if (current_product == set[j]) 
+     { current_product = 1; break; }   
   if (current_product <= 1) continue;
 
    /* Add product to even or odd table and reset */
    if (factors%2 == 0) {
-    correction_table->even[e] = current_product;
-    e++; current_product = 1;
+     correction_table->even[e] = current_product;
+     e++; current_product = 1;
    } else {
-    correction_table->odd[o] = current_product;
-    o++; current_product = 1;
+     correction_table->odd[o] = current_product;
+     o++; current_product = 1;
    }
  }
 
  /* Generate correction components and clean up */
  o = 0; odd_sum = 0; e = 0; even_sum = 0; 
  while (correction_table->odd[o] != 0) 
- { odd_sum += sum_divisible(correction_table->odd[o],max); o++; }
+   { odd_sum += sum_divisible(correction_table->odd[o],max); o++; }
  free(correction_table->odd);
  while (correction_table->even[e] != 0) 
- { even_sum += sum_divisible(correction_table->even[e],max); e++; }
+   { even_sum += sum_divisible(correction_table->even[e],max); e++; }
  free(correction_table->even);
  free(correction_table);
   
@@ -227,14 +236,14 @@ int main (int argc, char **argv)
   DATA max, sum, *divisors;
   INDEX i, num_divisors;
 
-  #ifndef _P1_BRUTEFORCE
+  #ifdef _FAST
    INDEX correction_flag;
    correction_flag = 1;
   #endif
 
   /* Argument parsing */
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
-  max = floor(atof(argv[1])); max--;
+  max = floor(atof(argv[1]))-1;
   if (max < 1) { printf("ERROR: %s only operates on positive integers!\n",argv[0]); return 0; }
   num_divisors = argc-2;
   divisors = (DATA *)calloc(num_divisors,sizeof(DATA));
@@ -251,7 +260,7 @@ int main (int argc, char **argv)
   /* Optimize divisor set */
   divisors = optimize_divisors(divisors,&num_divisors);
 
- #ifndef _P1_BRUTEFORCE
+ #ifdef _FAST
   /* Make initial summation pass and then correct it by eliminating duplicates;
    * fall back to brute force algorithm if correction fails
    */
