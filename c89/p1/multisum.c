@@ -32,7 +32,8 @@ char is_multiple (DATA n, DATA *set, INDEX set_size);
 DATA factorial (DATA n);
 DATA combination (DATA n, DATA r);
 DATA sum_divisible (DATA n, DATA max);
-DATA correction (DATA max, DATA *set, INDEX set_size);
+DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max);
+DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status);
 DATA *optimize_divisors (DATA *set, INDEX *set_size);
 DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products);
 
@@ -58,7 +59,8 @@ DATA factorial (DATA n)
 
 /* combination(n)
  * Returns the number of possible combinations of r objects
- * from a set of n objects.
+ * from a set of n objects; used to determine the amount of
+ * memory needed for a product table
  */
 DATA combination (DATA n, DATA r)
 { return floor(factorial(n)/factorial(r))*factorial(n-r); }
@@ -70,15 +72,30 @@ DATA combination (DATA n, DATA r)
 DATA sum_divisible (DATA n, DATA max)
 { return floor(n*floor(max/n)*(floor(max/n)+1)/2); }
 
+/* brute_force_sum(divisors,num_divisors,max)
+ * Performs a brute-force search of values divisible by the input
+ * set in the range 0 < n < max; O(n) fallback in case memory
+ * allocation fails while generating the sum correction for
+ * the faster O(1) algorithm
+ */
+DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max)
+{
+ DATA sum; INDEX i; sum = 0;
+ for (i = 1; i <= max; i++) if (is_multiple(i,divisors,num_divisors)) sum+= i;
+ return sum;
+}
+
 /* correction(max,set,set_size)
  * Generates a correction to apply to multiple summations
- * based on the power set of the input.
+ * based on the power set of the input, accounts for all possible
+ * products of the input and adds or subtracts them from the
+ * correction based on whether they are odd or even
  */
-DATA correction (DATA max, DATA *set, INDEX set_size)
+DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
 {
  /* Variable declaration and initialization */
  INDEX power_set_size, odd_size, even_size, factors, i, j, e, o;
- DATA current_product, correction, odd_sum, even_sum; PAIR *correction_table;
+ DATA current_product, odd_sum, even_sum; PAIR *correction_table;
  power_set_size = pow(2, set_size);
  odd_size = 0; even_size = 0; e = 0; o = 0; current_product = 1;
 
@@ -93,15 +110,15 @@ DATA correction (DATA max, DATA *set, INDEX set_size)
  }
 
  /* Print product table target size */  
- printf("Correction table: " INDEX_FORMAT " bytes\n",(INDEX)sizeof(DATA)*(even_size+odd_size+sizeof(PAIR)));
+ printf("Correction table: " INDEX_FORMAT " bytes\n",(INDEX)sizeof(DATA)*(even_size+odd_size+sizeof(PAIR)+2));
 
  /* Initialize the correction table */
  correction_table = malloc(sizeof(PAIR));
- if (!correction_table) { printf("ERROR: Correction table allocation failure!\n"); return 0; }
+ if (!correction_table) { printf("ERROR: Correction table allocation failure!\n"); *alloc_status = 1; return 0; }
  correction_table->odd = (DATA *)calloc(odd_size+1,sizeof(DATA));
- if (!correction_table->odd) { printf("ERROR: Correction table allocation failure!\n"); return 0; }
+ if (!correction_table->odd) { printf("ERROR: Correction table allocation failure!\n"); *alloc_status = 1; return 0; }
  correction_table->even = (DATA *)calloc(even_size+1,sizeof(DATA));
- if (!correction_table->even) { printf("ERROR: Correction table allocation failure!\n"); return 0; }
+ if (!correction_table->even) { printf("ERROR: Correction table allocation failure!\n"); *alloc_status = 1; return 0; }
 
  /* Populate the correction table with the products of the power
   * set of the input set (excluding singletons and the empty set)
@@ -131,18 +148,19 @@ DATA correction (DATA max, DATA *set, INDEX set_size)
    }
  }
 
- /* Generate correction */
+ /* Generate correction components and clean up */
  o = 0; odd_sum = 0; e = 0; even_sum = 0; 
- while (correction_table->odd[o] != 0) {
-	 odd_sum += sum_divisible(correction_table->odd[o],max); o++; }
- while (correction_table->even[e] != 0) { 
-	 even_sum += sum_divisible(correction_table->even[e],max); e++; }
- 
- /* Correction is generated; clean up and return correction value */
- correction = -even_sum+odd_sum;
- free(correction_table->odd); free(correction_table->even);
+ while (correction_table->odd[o] != 0) 
+ { odd_sum += sum_divisible(correction_table->odd[o],max); o++; }
+ free(correction_table->odd);
+ while (correction_table->even[e] != 0) 
+ { even_sum += sum_divisible(correction_table->even[e],max); e++; }
+ free(correction_table->even);
  free(correction_table);
- return correction;
+  
+ /* Correction is generated; all-clear and return */
+ *alloc_status = 0;
+ return -even_sum+odd_sum;
 }
 
 /* optimize_divisors(set, set_size)
@@ -252,8 +270,8 @@ int main (int argc, char **argv)
 {
   /* Variable declarations and setup */
   DATA max, sum, sum_correction, n, *divisors, *divisor_products;
-  INDEX i, num_divisors, num_products;
-  sum = 0; sum_correction = 0; num_products = 0;
+  INDEX i, num_divisors, correction_flag;
+  sum = 0; sum_correction = 0; num_products = 0; correction_flag = 1;
 
   /* Argument parsing */
   if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
@@ -274,29 +292,14 @@ int main (int argc, char **argv)
   /* Optimize divisor set */
   divisors = optimize_divisors(divisors,&num_divisors);
 
-  /* Generate divisor product table */
-  divisor_products = product_table(divisors,num_divisors,&num_products);
-  if (!divisor_products)
-  {
-    printf("Using brute force search...\n");
-    for (i = 1; i <= max; i++)
-      if (is_multiple(i,divisors,num_divisors)) sum+= i;
+  /* Make initial summation pass and then correct it by eliminating duplicates;
+   * fall back to brute-force algorithm if correction fails
+   */
+  i = 0; while (divisors[i] > 0) { sum_divisible(divisors[i],max) i++; }
+  sum += correction(max,divisors,num_divisors,&correction_flag);
+  if (correction_flag) { printf("Using brute force search...\n");
+    sum = brute_force_sum(divisors,num_divisors,max);
   } 
-  else 
-  {
-    /* Optimize product table */
-    divisor_products = optimize_divisors(divisor_products,&num_products);
-
-    /* Initial summation pass over divisor table */
-    i = 0; while (divisors[i] > 0)
-      { n = divisors[i]; sum += floor(n*floor(max/n)*(floor(max/n)+1)/2); i++; }
-
-    /* Generate correction */
-    sum_correction = correction(max,divisors,num_divisors);
-
-    /* Apply correction */
-    sum += sum_correction;
-  }
 
   /* Result return and cleanup */ 
   printf("Sum of matches:   " DATA_FORMAT "\n",sum);
