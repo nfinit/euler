@@ -35,7 +35,6 @@ DATA sum_divisible (DATA n, DATA max);
 DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max);
 DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status);
 DATA *optimize_divisors (DATA *set, INDEX *set_size);
-DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products);
 
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -80,8 +79,10 @@ DATA sum_divisible (DATA n, DATA max)
  */
 DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max)
 {
- DATA sum; INDEX i; sum = 0;
- for (i = 1; i <= max; i++) if (is_multiple(i,divisors,num_divisors)) sum+= i;
+ DATA sum, matches; INDEX i; sum = 0; matches = 0; 
+ for (i = 1; i <= max; i++) 
+ { if (is_multiple(i,divisors,num_divisors)) { sum += i; matches++; } }
+ printf("Matches in range: " DATA_FORMAT "\n",matches);
  return sum;
 }
 
@@ -202,63 +203,6 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
 
   /* Return the new optimized set, adjust the size counter, and free the old one */
   free(set); *set_size = optimized_set_size; return optimized_set;
-}
-
-/* product_table(set, set_size)
- * Generates the power set of the input array to get all possible
- * products of the values it contains. Used for elimination of
- * duplicate matches when using the fast summation formula.
- */
-DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products)
-{
-  /* Variable declaration and initialization */
-  DATA current_product, *product_table;
-  INDEX power_set_size, product_table_size, i, j, n;
-  power_set_size = pow(2, set_size);
-  product_table_size = 0; current_product = 1; n = 0;
-  *set_products = 0;
-
-  /* Determine size of product table */
-  for (i = 1; i <= set_size; i++) 
-    product_table_size += combination(set_size,i);
-
-  /* Print product table target size */  
-  printf("Product table:    " INDEX_FORMAT " bytes\n",(INDEX)sizeof(DATA)*product_table_size);
-
-  /* Initialize the product table */
-  product_table = calloc(product_table_size,sizeof(DATA));
-
-  /* Check if memory allocation succeeded */
-  if (!product_table)
-  {
-    printf("ERROR: Product table allocation failure!\n");
-    return product_table;
-  }
-
-  /* Populate the product table with the products of the power
-   * set of the input set (excluding singletons and the empty set)
-   */
-  for (i = 0; i < power_set_size; i++)
-  { 
-    /* Get product */
-    for (j = 0; j < set_size; j++) 
-      if (i & (1<<j)) 
-        { current_product *= set[j]; }
-
-    /* Validate product */
-    for (j = 0; j < set_size; j++) 
-      if (current_product == set[j]) 
-        { current_product = 1; break; }
-    if (current_product <= 1) continue;
-
-    /* Add product to table and reset */
-    product_table[n] = current_product;
-    n++; current_product = 1;
-  }
-
-  /* Product table is generated; return */
-  *set_products = product_table_size;
-  return product_table;
 }
 
 /* MAIN FUNCTION
