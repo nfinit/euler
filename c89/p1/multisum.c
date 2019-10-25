@@ -22,11 +22,17 @@ typedef long double DATA;
 #define DATA_FORMAT  "%.0Lf"
 typedef unsigned long INDEX;
 #define INDEX_FORMAT "%lu"
+typedef struct {
+ DATA odd;
+ DATA even;
+} PAIR;
 
 /* FUNCTION PROTOTYPES */
 char is_multiple (DATA n, DATA *set, INDEX set_size);
 DATA factorial (DATA n);
 DATA combination (DATA n, DATA r);
+DATA sum_divisible (DATA n, DATA max);
+DATA correction (DATA max, DATA *set, INDEX set_size);
 DATA *optimize_divisors (DATA *set, INDEX *set_size);
 DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products);
 
@@ -34,6 +40,7 @@ DATA *product_table (DATA *set, INDEX set_size, INDEX *set_products);
 
 /* is_multiple (n, set, set_size)
  * Determines if n is a multiple of any member of the given set.
+ * Used in brute-force fallback solution.
  */
 char is_multiple (DATA n, DATA *set, INDEX set_size)
 {
@@ -55,6 +62,85 @@ DATA factorial (DATA n)
  */
 DATA combination (DATA n, DATA r)
 { return floor(factorial(n)/factorial(r))*factorial(n-r); }
+
+/* sum_divisible(n,max)
+ * Summation formula returning the sum of values divisible by n
+ * in the range 0 < n < max
+ */
+DATA sum_divisible (DATA n, DATA max)
+{ return floor(n*floor(max/n)*(floor(max/n)+1)/2); }
+
+/* correction(max,set,set_size)
+ * Generates a correction to apply to multiple summations
+ * based on the power set of the input.
+ */
+DATA correction (DATA max, DATA *set, INDEX set_size)
+{
+ /* Variable declaration and initialization */
+ INDEX power_set_size, odd_size, even_size, factors, i, j, e, o;
+ DATA current_product, correction; PAIR correction_table;
+ power_set_size = pow(2, set_size);
+ odd_size = 0; even_size = 0; e = 0; o = 0; current_product = 1;
+
+ /* Determine size of correction tables */
+ for (i = 1; i <= set_size; i++)
+ {
+  if (i%2 == 0) {
+   even_size += combination(set_size,i);
+  } else {
+   odd_size += combination(set_size,i);
+  }
+ }
+
+ /* Print product table target size */  
+ printf("Correction tables:    " INDEX_FORMAT " bytes\n",(INDEX)sizeof(DATA)*(even_size+odd_size+sizeof(PAIR)));
+
+ /* Initialize the correction table */
+ correction_table = malloc(sizeof(PAIR));
+ if (!correction_table) { printf("ERROR: Correction table allocation failure!\n"); return 0; }
+ correction_table->odd = calloc(odd_size,sizeof(DATA));
+ if (!correction_table->odd) { printf("ERROR: Correction table allocation failure!\n"); return 0; }
+ correction_table->even = calloc(even_size,sizeof(DATA));
+ if (!correction_table->even) { printf("ERROR: Correction table allocation failure!\n"); return 0; }
+
+ /* Populate the correction table with the products of the power
+  * set of the input set (excluding singletons and the empty set)
+  */
+ for (i = 0; i < power_set_size; i++)
+ { 
+   factors = 0;
+   /* Get product */
+   for (j = 0; j < set_size; j++) 
+     if (i & (1<<j)) 
+       { current_product *= set[j]; factors++; }
+
+  /* Validate product */
+  for (j = 0; j < set_size; j++) 
+   if (current_product == set[j]) 
+    { current_product = 1; break; }
+   if (current_product <= 1) continue;
+
+   /* Add product to even or odd table and reset */
+   if (factors%2 == 0) {
+    correction_table->even[e] = current_product;
+    e++; current_product = 1;
+   } else {
+    correction_table->odd[o] = current_product;
+    o++; current_product = 1;
+   }
+ }
+
+ /* Generate correction */
+ e = 0; o = 0; i = 0; j = 0;
+ while (correction_table->odd[i] != 0) { o += sum_divisible(correction_table->odd[i],max); i++; }
+ while (correction_table->even[j] != 0) { e += sum_divisible(correction_table->odd[i],max); j++; }
+ 
+ /* Correction is generated; clean up and return correction value */
+ correction = 0-e+o;
+ free(correction_table->odd); free(correction_table->even);
+ free(correction_table);
+ return correction;
+}
 
 /* optimize_divisors(set, set_size)
  * Flags and removes any elements in the given set that are
