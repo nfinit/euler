@@ -31,14 +31,15 @@ clean:
 
 #   PROJECT 1  //  PROJECT 1  //  PROJECT 1  //  PROJECT 1  //  PROJECT 1   #
 
-P1_FILE    = ./p1/multisum.c
-P1_EXEC    = $(BIN_DIR)/multisum
-P1_EXEC_BF = $(BIN_DIR)/brutesum
+P1_FILE           = ./p1/multisum.c
+P1_BRUTEFORCE_ALG = $(CC_DEFINE)_BRUTEFORCE
+P1_EXEC           = $(BIN_DIR)/multisum
+P1_EXEC_BF        = $(BIN_DIR)/brutesum
 
 p1: setup
 	@echo "P1: Building solutions..."
 	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P1_FILE) $(CC_OUT) $(P1_EXEC)
-	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(CC_DEFINE)_P1_BRUTEFORCE $(P1_FILE) $(CC_OUT) $(P1_EXEC_BF)
+	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P1_BRUTEFORCE_ALG) $(P1_FILE) $(CC_OUT) $(P1_EXEC_BF)
 	@echo "*** BUILD COMPLETE ***"
 
 validate-p1: p1
@@ -75,12 +76,12 @@ benchmark-p1: p1
 	@echo "Compiler: $(CC_VER)"
 	@echo "Optimization flags: $(OFLAGS)"
 	@echo ""
-	@echo "Searching: 3, 5, 7, 11, 13 in range 0 < n < $(n)"
+	@echo "Searching: 3, 5, 7, 10, 11, 13, 26 in range 0 < n < $(n)"
 	@echo ""
 	@echo "Testing fast summation algorithm..."
-	@/usr/bin/env bash -c "time $(P1_EXEC) $(n) 3 5 7 11 13"
+	@/usr/bin/env bash -c "time $(P1_EXEC) $(n) 3 5 7 10 11 13 26"
 	@echo ""
 	@echo "Testing brute force algorithm..."
-	@/usr/bin/env bash -c "time $(P1_EXEC_BF) $(n) 3 5 7 11 13"
+	@/usr/bin/env bash -c "time $(P1_EXEC_BF) $(n) 3 5 7 10 11 13 26"
 	@echo ""
 	@echo "*** TEST COMPLETE***"
