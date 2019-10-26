@@ -38,6 +38,11 @@ typedef struct {
 } PAIR;
 #endif
 
+/* OUTPUT STRINGS */
+#define USAGE_STR   "usage: %s [max] [divisor(s)]\n"
+#define ARGS_FAIL   "ERROR: %s only operates on positive integers!\n"
+#define CALLOC_FAIL "ERROR: Correction table allocation failure!\n"
+
 /* FUNCTION PROTOTYPES */
 DATA   *optimize_divisors (DATA *set, INDEX *set_size);
 INDEX  is_multiple        (DATA n, DATA *set, INDEX set_size);
@@ -46,7 +51,7 @@ DATA   brute_force_sum    (DATA *divisors, INDEX num_divisors, DATA max);
 #ifdef _FAST
 /* Fast algorithm functions */
 DATA factorial     (DATA n);
-DATA combination   (DATA n, DATA r);
+INDEX combination   (DATA n, DATA r);
 DATA sum_divisible (DATA n, DATA max);
 DATA correction    (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status);
 #endif
@@ -135,7 +140,7 @@ DATA factorial (DATA n)
  * from a set of n objects; used to determine the amount of
  * memory needed for a product table
  */
-DATA combination (DATA n, DATA r)
+INDEX combination (DATA n, DATA r)
 { return floor(factorial(n)/factorial(r))*factorial(n-r); }
 
 /* sum_divisible(n,max)
@@ -154,18 +159,23 @@ DATA sum_divisible (DATA n, DATA max)
 DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
 {
  /* Variable declaration and initialization */
- INDEX power_set_size, odd_size, even_size, factors, i, j, e, o;
+ INDEX power_set_size, odd_size, even_size, factors, i, j, e, o, le, lo;
  DATA current_product, odd_sum, even_sum; PAIR *correction_table;
  power_set_size = pow(2, set_size);
- odd_size = 0; even_size = 0; e = 0; o = 0; current_product = 1;
+ odd_size = 0; even_size = 0; current_product = 1;
+ e = 0; o = 0; le = 0; lo = 0;
 
  /* Determine size of correction tables */
  for (i = 1; i <= set_size; i++)
  {
    if (i%2 == 0) {
      even_size += combination(set_size,i);
+     if (le >= even_size) { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
+     le = even_size; 
    } else {
      odd_size += combination(set_size,i);
+     if (lo >= odd_size) { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
+     lo = odd_size; 
    }
  }
 
@@ -174,11 +184,11 @@ DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
 
  /* Initialize the correction table */
  correction_table = malloc(sizeof(PAIR));
- if (!correction_table) { printf("ERROR: Correction table allocation failure!\n"); *alloc_status = 1; return 0; }
+ if (!correction_table) { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
  correction_table->odd = (DATA *)calloc(odd_size+1,sizeof(DATA));
- if (!correction_table->odd) { printf("ERROR: Correction table allocation failure!\n"); *alloc_status = 1; return 0; }
+ if (!correction_table->odd) { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
  correction_table->even = (DATA *)calloc(even_size+1,sizeof(DATA));
- if (!correction_table->even) { printf("ERROR: Correction table allocation failure!\n"); *alloc_status = 1; return 0; }
+ if (!correction_table->even) { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
 
  /* Populate the correction table with the products of the power
   * set of the input set (excluding singletons and the empty set)
@@ -242,15 +252,15 @@ int main (int argc, char **argv)
   #endif
 
   /* Argument parsing */
-  if (argc < 2) { printf("usage: %s [max] [divisor(s)]\n",argv[0]); return 0; }
+  if (argc < 2) { printf(USAGE_STR,argv[0]); return 0; }
   max = floor(atof(argv[1]))-1;
-  if (max < 1) { printf("ERROR: %s only operates on positive integers!\n",argv[0]); return 0; }
+  if (max < 1) { printf(ARGS_FAIL,argv[0]); return 0; }
   num_divisors = argc-2;
   divisors = (DATA *)calloc(num_divisors,sizeof(DATA));
   for (i = 0; i < num_divisors; i++) 
   { 
     divisors[i] = floor(atof(argv[i+2]));
-    if (divisors[i] < 1) { printf("ERROR: %s only operates on positive integers!\n",argv[0]); return 0; }
+    if (divisors[i] < 1) { printf(ARGS_FAIL,argv[0]); return 0; }
   }
 
   /* Print pre-run statistics */
