@@ -19,7 +19,7 @@ serious number crunching.
 
 [//]: # ( General links ====================================================== )
 
-[FOCAL-69]: https://en.wikipedia.org/wiki/FOCAL_%28programming_language%29
+[FOCAL]: https://en.wikipedia.org/wiki/FOCAL_%28programming_language%29
 
 [DEC PDP-8]: https://en.wikipedia.org/wiki/PDP-8
 
