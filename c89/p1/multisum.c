@@ -42,6 +42,7 @@ typedef struct {
 #define USAGE_STR   "usage: %s [max] [divisor(s)]\n"
 #define ARGS_FAIL   "ERROR: %s only operates on positive integers!\n"
 #define CALLOC_FAIL "ERROR: Correction table allocation failure!\n"
+#define OPT_FAIL    "ERROR: Memory allocation failure during optimization!\n"
 
 /* FUNCTION PROTOTYPES */
 DATA   *optimize_divisors (DATA *set, INDEX *set_size);
@@ -81,7 +82,7 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
 
   /* Allocate new optimized set with null terminator */
   optimized_set = (DATA *)calloc(optimized_set_size+1,sizeof(DATA));
-  if (!optimized_set) { printf("ERROR: Divisor optimization failed due to memory allocation error!\n"); return set; }
+  if (!optimized_set) { printf(OPT_FAIL); return set; }
 
   /* Copy remaining values in old set to new set */
   j = 0; for (i = 0; i < orig_set_size; i++)
@@ -90,12 +91,15 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
   /* Print contents of optimized array */
   printf("Optimized search: {");
   for (i = 0; i < optimized_set_size; i++)
-    { printf("%.0Lf",optimized_set[i]); if (i != optimized_set_size - 1) printf(", "); } 
+  { 
+    printf("%.0Lf",optimized_set[i]);
+    if (i != optimized_set_size - 1) printf(", ");
+  } 
   printf("} (%lu byte",optimized_set_size*sizeof(DATA));
   if (optimized_set_size*sizeof(DATA) != 1) printf("s");
   printf(")\n");
 
-  /* Return the new optimized set, adjust the size counter, and free the old one */
+  /* Clean up old set, adjust set size and return the new set */
   free(set); *set_size = optimized_set_size; return optimized_set;
 }
 
@@ -180,15 +184,19 @@ DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
  }
 
  /* Print product table target size */  
- printf("Correction table: " INDEX_FORMAT " bytes\n",(INDEX)sizeof(DATA)*(even_size+odd_size+sizeof(PAIR)+2));
+ printf("Correction table: " INDEX_FORMAT " bytes\n",
+        (INDEX)sizeof(DATA)*(even_size+odd_size+sizeof(PAIR)+2));
 
  /* Initialize the correction table */
  correction_table = malloc(sizeof(PAIR));
- if (!correction_table) { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
+ if (!correction_table) 
+ { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
  correction_table->odd = (DATA *)calloc(odd_size+1,sizeof(DATA));
- if (!correction_table->odd) { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
+ if (!correction_table->odd) 
+ { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
  correction_table->even = (DATA *)calloc(even_size+1,sizeof(DATA));
- if (!correction_table->even) { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
+ if (!correction_table->even) 
+ { printf(CALLOC_FAIL); *alloc_status = 1; return 0; }
 
  /* Populate the correction table with the products of the power
   * set of the input set (excluding singletons and the empty set)
@@ -204,7 +212,7 @@ DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
   /* Validate product */
   for (j = 0; j < set_size; j++) 
     if (current_product == set[j]) 
-     { current_product = 1; break; }   
+    { current_product = 1; break; }   
   if (current_product <= 1) continue;
 
    /* Add product to even or odd table and reset */
@@ -274,11 +282,11 @@ int main (int argc, char **argv)
   /* Make initial summation pass and then correct it by eliminating duplicates;
    * fall back to brute force algorithm if correction fails
    */
-  sum = 0; i = 0; while (divisors[i] > 0) { sum += sum_divisible(divisors[i],max); i++; }
+  sum = 0; i = 0; while (divisors[i] > 0) 
+  { sum += sum_divisible(divisors[i],max); i++; }
   sum += correction(max,divisors,num_divisors,&correction_flag);
   if (correction_flag) { printf("Using brute force search...\n");
-    sum = brute_force_sum(divisors,num_divisors,max);
-  } 
+    sum = brute_force_sum(divisors,num_divisors,max); } 
  #else
   /* Use brute force search in all cases 
    * if _P1_BRUTEFORCE is defined during compilation
