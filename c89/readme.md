@@ -6,6 +6,7 @@ C or Standard C.
 |  #  | Status | Solutions                                                     |
 |-----|--------|---------------------------------------------------------------|
 | [1] | Solved | Brute force, [arithmetic progression]                         |
+| [2] | Solved | Brute force                                                   |
 
 [//]: # ( Links and references // Links and references // Links and references )
 
@@ -18,6 +19,9 @@ http://en.wikipedia.org/wiki/ANSI_C
 
 [1]: https://github.com/nfinit/euler/wiki/Problem-1
 (Multiples of 3 and 5)
+
+[2]: https://github.com/nfinit/euler/wiki/Problem-2
+(Even Fibonacci numbers)
 
 [//]: # ( Links and sources ================================================== )
 
