@@ -122,9 +122,9 @@ INDEX is_multiple (DATA n, DATA *set, INDEX set_size)
  */
 DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max)
 {
- DATA sum, matches; INDEX i; sum = 0; matches = 0; 
- for (i = 1; i <= max; i++) 
-   if (is_multiple(i,divisors,num_divisors)) { sum += i; matches++; }
+ DATA n, sum, matches; sum = 0; matches = 0; 
+ for (n = 1; n <= max; n++) 
+   if (is_multiple(n,divisors,num_divisors)) { sum += n; matches++; }
  printf("Matches in range: " DATA_FORMAT "\n",matches);
  return sum;
 }
