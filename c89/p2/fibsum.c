@@ -85,23 +85,24 @@ INDEX is_multiple (DATA n, DATA *set, INDEX set_size)
 }
 
 /* brute_force_sum(divisors,num_divisors,max)
- * Performs a brute force search of values in the Fibonacci
+ * Performs a brute force search of terms in the Fibonacci
  * Sequence divisible by the input set in the range 
  * 0 < n < max
  */
 DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max)
 {
- DATA sum, matches, prev, last_prev; INDEX i; 
+ DATA n, sum, matches, prev, last_prev; 
  sum = 0; matches = 0; prev = 2; last_prev = 1;
- /* Check first two fibonacci values against the divisors */
+ 
+ /* Check first two fibonacci terms against the divisors */
  if (is_multiple(last_prev,divisors,num_divisors)) { sum += last_prev; matches++; }
  if (is_multiple(prev,divisors,num_divisors)) { sum += prev; matches++; }
  
  /* Begin main loop */
- for (i = prev+last_prev; i <= max; i = prev+last_prev) 
+ for (n = prev + last_prev; n <= max; n = prev + last_prev) 
  {
-   if (is_multiple(i,divisors,num_divisors)) { sum += i; matches++; }
-   last_prev = prev; prev = i;
+   if (is_multiple(n,divisors,num_divisors)) { sum += n; matches++; }
+   last_prev = prev; prev = n;
  }
  
  /* Print match statistic and return */
