@@ -85,3 +85,21 @@ benchmark-p1: p1
 	@/usr/bin/env bash -c "time $(P1_EXEC_BF) $(n) 3 5 7 10 11 13 26"
 	@echo ""
 	@echo "*** TEST COMPLETE***"
+	
+#   PROJECT 2  //  PROJECT 2  //  PROJECT 2  //  PROJECT 2  //  PROJECT 2   #
+
+P2_FILE           = ./p2/fibsum.c
+P2_EXEC           = $(BIN_DIR)/fibsum
+
+p2: setup
+	@echo "P2: Building solutions..."
+	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P2_FILE) $(CC_OUT) $(P2_EXEC)
+	@echo "*** BUILD COMPLETE ***"
+	
+validate-p2: p2
+	@echo ""
+	@echo "P2: Running validation tests..."
+	@echo ""
+	$(P2_EXEC) 4000000 2
+	@echo ""
+	@echo "*** VALIDATION TEST COMPLETE ***"
