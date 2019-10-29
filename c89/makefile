@@ -1,5 +1,5 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                PROJECT EULER: C89 SOLUTION MAKEFILE               #
+#                PROBLEM EULER: C89 SOLUTION MAKEFILE               #
 # ----------------------------------------------------------------- #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -29,7 +29,7 @@ clean:
 	@echo "Cleaning up environment..."
 	@rm -rf $(BIN_DIR)	
 
-#   PROJECT 1  //  PROJECT 1  //  PROJECT 1  //  PROJECT 1  //  PROJECT 1   #
+#   PROBLEM 1  //  PROBLEM 1  //  PROBLEM 1  //  PROBLEM 1  //  PROBLEM 1   #
 
 P1_FILE           = ./p1/multisum.c
 P1_BRUTEFORCE_ALG = $(CC_DEFINE)_BRUTEFORCE
@@ -86,7 +86,7 @@ benchmark-p1: p1
 	@echo ""
 	@echo "*** TEST COMPLETE***"
 	
-#   PROJECT 2  //  PROJECT 2  //  PROJECT 2  //  PROJECT 2  //  PROJECT 2   #
+#   PROBLEM 2  //  PROBLEM 2  //  PROBLEM 2  //  PROBLEM 2  //  PROBLEM 2   #
 
 P2_FILE           = ./p2/fibsum.c
 P2_EXEC           = $(BIN_DIR)/fibsum
@@ -103,3 +103,13 @@ validate-p2: p2
 	$(P2_EXEC) 4000000 2
 	@echo ""
 	@echo "*** VALIDATION TEST COMPLETE ***"
+
+#   PROBLEM 3  //  PROBLEM 3  //  PROBLEM 3  //  PROBLEM 3  //  PROBLEM 3   #
+
+P3_FILE           = ./p3/factor.c
+P3_EXEC           = $(BIN_DIR)/factor
+
+p3: setup
+	@echo "P3: Building solutions..."
+	$(CC) $(CFLAGS) $(OFLAGS) $(CC_LIB)m $(P3_FILE) $(CC_OUT) $(P3_EXEC)
+	@echo "*** BUILD COMPLETE ***"

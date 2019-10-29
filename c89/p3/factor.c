@@ -20,7 +20,7 @@ typedef unsigned long INDEX;
 #define MALLOC_FAIL "ERROR: Memory allocation failure during optimization!\n"
 
 /* FUNCTION PROTOTYPES */
-void trial_factor (DATA n)
+void trial_factor (DATA n);
 
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -30,12 +30,13 @@ void trial_factor (DATA n)
 void trial_factor (DATA n)
 {
   DATA f; f = 2;
+  printf("{");
   while (n > 1)
   {
-    if (fmod(n,f) == 0) { printf(DATA_FORMAT " ",f); n /= f; }
+    if (fmod(n,f) == 0) { printf(DATA_FORMAT,f); n /= f; if (n > 1) printf (", "); }
     else f++;
   }
-  printf("\n");
+  printf("}\n");
 }
 
 /* MAIN FUNCTION
@@ -49,13 +50,12 @@ int main (int argc, char **argv)
   DATA n;
 
   /* Argument parsing */
-  if (argc < 1) { printf(USAGE_STR,argv[0]); return 0; }
-  n = floor(atof(argv[1]))-1;
+  if (argc < 2) { printf(USAGE_STR,argv[0]); return 0; }
+  n = floor(atof(argv[1]));
   if (n < 1) { printf(ARGS_FAIL,argv[0]); return 0; }
 
   /* Print pre-run statistics */
   printf("Factoring: " DATA_FORMAT "\n",n);
-  printf("Data size: " INDEX_FORMAT " bits\n",(INDEX)sizeof(DATA)*8);
 
   /* Factor n */
   trial_factor(n);
