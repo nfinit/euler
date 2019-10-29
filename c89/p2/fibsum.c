@@ -4,6 +4,11 @@
  * 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ...
  * By considering the terms in the Fibonacci sequence whose values do not
  * exceed four million, find the sum of the even-valued terms.
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * SOLUTION: Brute force summation
+ * This solution tests all terms of the Fibonacci sequence less than a given
+ * value to test for divisibility with the supplied arguments. Using a divisor
+ * of 2 is sufficient to answer the above question.
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
  
 /* INCLUDES */
