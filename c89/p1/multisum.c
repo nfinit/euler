@@ -209,11 +209,11 @@ DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
      if (i & (1<<j)) 
       { current_product *= set[j]; factors++; }
 
-  /* Validate product */
-  for (j = 0; j < set_size; j++) 
-    if (current_product == set[j]) 
-    { current_product = 1; break; }   
-  if (current_product <= 1) continue;
+   /* Validate product */
+   for (j = 0; j < set_size; j++) 
+     if (current_product == set[j]) 
+     { current_product = 1; break; }   
+   if (current_product <= 1) continue;
 
    /* Add product to even or odd table and reset */
    if (factors%2 == 0) {
@@ -260,7 +260,7 @@ int main (int argc, char **argv)
   #endif
 
   /* Argument parsing */
-  if (argc < 2) { printf(USAGE_STR,argv[0]); return 0; }
+  if (argc < 3) { printf(USAGE_STR,argv[0]); return 0; }
   max = floor(atof(argv[1]))-1;
   if (max < 1) { printf(ARGS_FAIL,argv[0]); return 0; }
   num_divisors = argc-2;

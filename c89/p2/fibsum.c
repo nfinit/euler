@@ -127,7 +127,7 @@ int main (int argc, char **argv)
   INDEX i, num_divisors;
 
   /* Argument parsing */
-  if (argc < 2) { printf(USAGE_STR,argv[0]); return 0; }
+  if (argc < 3) { printf(USAGE_STR,argv[0]); return 0; }
   max = floor(atof(argv[1]))-1;
   if (max < 1) { printf(ARGS_FAIL,argv[0]); return 0; }
   num_divisors = argc-2;
