@@ -1,6 +1,10 @@
 /* PROBLEM 3 [ https://projecteuler.net/problem=3 ]
  * The prime factors of 13195 are 5, 7, 13 and 29.
  * What is the largest prime factor of the number 600,851,475,143?
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * SOLUTION: Trial division
+ * Implements a simple, but laborious method which tests the given number n
+ * against every number less than n. 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
  
 /* INCLUDES */
@@ -11,13 +15,10 @@
 /* TYPE DEFINITIONS */
 typedef long double   DATA;
 #define DATA_FORMAT   "%.0Lf"
-typedef unsigned long INDEX;
-#define INDEX_FORMAT  "%lu"
 
 /* OUTPUT STRINGS */
 #define USAGE_STR   "usage: %s [value]\n"
 #define ARGS_FAIL   "ERROR: %s only operates on positive integers!\n"
-#define MALLOC_FAIL "ERROR: Memory allocation failure during optimization!\n"
 
 /* FUNCTION PROTOTYPES */
 void trial_factor (DATA n);
@@ -25,18 +26,16 @@ void trial_factor (DATA n);
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* trial_factor(n)
- * Factors n by trial division
+ * Factors n by trial division and prints the list
  */
 void trial_factor (DATA n)
 {
   DATA f; f = 2;
-  printf("{");
-  while (n > 1)
+  printf("{"); while (n > 1)
   {
     if (fmod(n,f) == 0) { printf(DATA_FORMAT,f); n /= f; if (n > 1) printf (", "); }
     else f++;
-  }
-  printf("}\n");
+  } printf("}\n");
 }
 
 /* MAIN FUNCTION
