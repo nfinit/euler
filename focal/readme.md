@@ -1,4 +1,4 @@
-FOCAL-69 Solutions
+FOCAL Solutions
 --------------------------------------------------------------------------------
 Solutions in this directory are implemented in [FOCAL], an early BASIC-like
 programming language for the famous [DEC PDP-8] minicomputer and other 
