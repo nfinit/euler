@@ -7,7 +7,7 @@ C or Standard C.
 |-----|--------|---------------------------------------------------------------|
 | [1] | Solved | Brute force, [arithmetic progression]                         |
 | [2] | Solved | Brute force                                                   |
-| [3] | WIP    | Trial division                                                |
+| [3] | Solved | Trial division                                                |
 
 [//]: # ( Links and references // Links and references // Links and references )
 
