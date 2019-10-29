@@ -1,7 +1,9 @@
 C89 Solutions
 --------------------------------------------------------------------------------
 Solutions in this directory are implemented in [ANSI C], also known as C89, ISO
-C or Standard C.
+C or Standard C. Solutions are primarily tested on a 1st-generation Raspberry Pi
+Model B running Raspbian with GCC 8.3.0, as well as an HP Visualize C3000
+running HP-UX 11i with HP C B.11.11.16.
 
 |  #  | Status | Solutions                                                     |
 |-----|--------|---------------------------------------------------------------|
