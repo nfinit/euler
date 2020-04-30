@@ -20,7 +20,7 @@ microprocessor.
 
 [TI-99/4]: https://en.wikipedia.org/wiki/Texas_Instruments_TI-99/4A
 
-[TMS99000]: https://en.wikipedia.org/wiki/Texas_Instruments_TMS9900
+[TMS9900]: https://en.wikipedia.org/wiki/Texas_Instruments_TMS9900
 
 [//]: # ( Problems =========================================================== )
 
