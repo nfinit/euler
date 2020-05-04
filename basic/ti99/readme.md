@@ -30,7 +30,7 @@ optional TMS5200 add-on module. TI Extended BASIC also implemented a number of
 routines and other functionality in pure assembly rather than interpreted GPL,
 producing significant speed-up in many applications. Most of the solutions in
 this repository are implemented in Extended BASIC with the file extension 
-`.xbas`.
+`.x.bas`.
 
 |  #  | Status | Solutions                                                     |
 |-----|--------|---------------------------------------------------------------|
