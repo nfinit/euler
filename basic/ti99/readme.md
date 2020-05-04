@@ -1,4 +1,4 @@
-TI-99 BASIC Solutions
+TI BASIC solutions for the Texas Instruments TI-99/4
 --------------------------------------------------------------------------------
 Solutions in this directory are implemented in [TI BASIC], an ANSI-compliant
 implementation of [BASIC] developed for Texas Instruments' [TI-99/4] and later 
