@@ -12,30 +12,114 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* TYPE DEFINITIONS */
+/* BASIC TYPE DEFINITIONS */
 typedef long double   DATA;
 #define DATA_FORMAT   "%.0Lf"
+
+/* LINKED LIST IMPLEMENTATION */
+struct node
+{
+  DATA data;
+  struct node* next;
+};
+typedef struct node node;
+struct list 
+{ 
+  node* head; 
+  size_t size;  
+};
+typedef struct list list;
 
 /* OUTPUT STRINGS */
 #define USAGE_STR   "usage: %s [value]\n"
 #define ARGS_FAIL   "ERROR: %s only operates on positive integers!\n"
+#define LALLOC_FAIL "ERROR: Factor list initialization failure!\n"
+#define NALLOC_FAIL "ERROR: Could not allocate memory for list entry!\n"
 
 /* FUNCTION PROTOTYPES */
-void trial_factor (DATA n);
+void print_list (list* l);
+void destroy_list (list* l);
+void trial_factor (DATA n, list* l);
 
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* trial_factor(n)
- * Factors n by trial division and prints the list
+/* print_list(*l)
+ * Prints the contents of a list
  */
-void trial_factor (DATA n)
+void print_list (list* l)
 {
-  DATA f; f = 2;
-  printf("{"); while (n > 1)
+  node *c;
+
+  if (l == NULL) return;
+  c = l->head;
+
+  printf("{");
+  while (c != NULL)
   {
-    if (fmod(n,f) == 0) { printf(DATA_FORMAT,f); n /= f; if (n > 1) printf (", "); }
-    else f++;
-  } printf("}\n");
+    printf(DATA_FORMAT,c->data);
+    if(l->size > 1 && c->next != NULL) printf(", ");
+    c = c->next;
+  }
+  printf("}\n");
+
+  printf("(list size: %d bytes)\n",sizeof(list)+sizeof(node)*l->size);
+}
+
+/* destroy_list(*l)
+ * Frees an entire list, including nodes
+ */
+void destroy_list (list* l)
+{
+  node *c, *p;
+  if (l == NULL) return;
+  c = l->head;
+  while (c != NULL) 
+  { 
+    p = c; 
+    c = p->next;
+    free(p); 
+  }
+  free(l);
+}
+
+/* trial_factor(n)
+ * Factors n by trial division and appends to a list 
+ */
+void trial_factor (DATA n, list* l)
+{
+  node *c, *p;
+  DATA f; 
+
+  /* Variable initialization: set c to the first null node in the list */
+  f = 2;
+  p = NULL;
+  c = l->head; 
+  while (c != NULL) 
+  {
+    p = c;
+    c = c->next; 
+  }    
+
+  /* Begin trial division */
+  while (n > 1)
+  {
+    if (fmod(n,f) == 0)
+    {
+      if (p && p->data == f) 
+      {
+        n /= f;
+        continue; 
+      } 
+      c = malloc(sizeof(node));
+      if (p == NULL) { l->head = c; }
+      else { p->next = c; }
+      c->data = f; c->next = NULL;
+      l->size++;
+      p = c;
+      c = c->next;
+      n /= f;
+    } else f++;
+  }
 }
 
 /* MAIN FUNCTION
@@ -47,18 +131,27 @@ int main (int argc, char **argv)
 {
   /* Variable declarations and setup */
   DATA n;
+  list* l;
+
+  /* Initialize the factor list */
+  l = malloc(sizeof(list));
+  if (!l) { printf(LALLOC_FAIL); return 0; }
+  l->head = NULL;
+  l->size = 0;
 
   /* Argument parsing */
   if (argc < 2) { printf(USAGE_STR,argv[0]); return 0; }
   n = floor(atof(argv[1]));
   if (n < 1) { printf(ARGS_FAIL,argv[0]); return 0; }
 
-  /* Print pre-run statistics */
-  printf("Factoring: " DATA_FORMAT "\n",n);
-
   /* Factor n */
-  trial_factor(n);
+  trial_factor(n,l);
+  
+  /* Clean up, print and destroy the results */
+  if (l->size < 2) { printf(DATA_FORMAT " is prime\n",n); } 
+  else { printf("Factorization of " DATA_FORMAT ":\n",n); print_list(l); }
+  destroy_list(l); 
 
-  /* End of program */ 
+  /* End of program */
   return 0;
 }
