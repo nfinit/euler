@@ -6,6 +6,9 @@
  * Implements a simple, but laborious method which tests the given number n
  * against every number less than n. 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* OPTIONS */
+#undef  _P3_DEBUG
  
 /* INCLUDES */
 #include <stdio.h>
@@ -16,13 +19,15 @@
 typedef long double   DATA;
 #define DATA_FORMAT   "%.0Lf"
 
-/* LINKED LIST IMPLEMENTATION */
+/* LINKED LIST NODE */
 struct node
 {
   DATA data;
   struct node* next;
 };
 typedef struct node node;
+
+/* LINKED LIST STRUCTURE */
 struct list 
 { 
   node* head; 
@@ -34,12 +39,12 @@ typedef struct list list;
 #define USAGE_STR   "usage: %s [value]\n"
 #define ARGS_FAIL   "ERROR: %s only operates on positive integers!\n"
 #define LALLOC_FAIL "ERROR: Factor list initialization failure!\n"
-#define NALLOC_FAIL "ERROR: Could not allocate memory for list entry!\n"
+#define NALLOC_FAIL "ERROR: Could not allocate memory for factor list entry!\n"
 
 /* FUNCTION PROTOTYPES */
-void print_list (list* l);
-void destroy_list (list* l);
-void trial_factor (DATA n, list* l);
+void print_list     (list* l);
+void destroy_list   (list* l);
+void trial_factor   (DATA n, list* l);
 
 /* BEGIN PROGRAM * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -61,8 +66,10 @@ void print_list (list* l)
     c = c->next;
   }
   printf("}\n");
-
+  
+  #ifdef _P3_DEBUG
   printf("(list size: %d bytes)\n",sizeof(list)+sizeof(node)*l->size);
+  #endif
 }
 
 /* destroy_list(*l)
@@ -73,52 +80,51 @@ void destroy_list (list* l)
   node *c, *p;
   if (l == NULL) return;
   c = l->head;
-  while (c != NULL) 
-  { 
-    p = c; 
-    c = p->next;
-    free(p); 
-  }
+  while (c != NULL) { p = c; c = p->next; free(p); }
   free(l);
 }
 
-/* trial_factor(n)
+/* trial_factor(n,*l)
  * Factors n by trial division and appends to a list 
  */
 void trial_factor (DATA n, list* l)
 {
   node *c, *p;
-  DATA f; 
+  DATA f,m; f = 2; m = sqrt(n); 
 
-  /* Variable initialization: set c to the first null node in the list */
-  f = 2;
-  p = NULL;
-  c = l->head; 
-  while (c != NULL) 
+  /* initialize pointers: set c to the first null node in the list */
+  p = NULL; c = l->head; while (c != NULL) { p = c; c = c->next; }    
+
+  /* Test with f = 2 to check if n is even */ 
+  if (fmod(n,f) == 0)
   {
-    p = c;
-    c = c->next; 
-  }    
+    c = malloc(sizeof(node));
+    if (p == NULL) { l->head = c; }
+    else { p->next = c; }
+    c->data = f; c->next = NULL;
+    l->size++;
+    p = c; c = c->next;
+    n /= f;
+  } f++; 
 
-  /* Begin trial division */
+  /* Standard trial division by odd numbers for remaining factors
+   * Loop terminates at f > m as a given number can only have one prime factor
+   * greater than its square root 
+   */
   while (n > 1)
   {
     if (fmod(n,f) == 0)
     {
-      if (p && p->data == f) 
-      {
-        n /= f;
-        continue; 
-      } 
+      if (p && p->data == f) { n /= f; continue; } 
       c = malloc(sizeof(node));
       if (p == NULL) { l->head = c; }
       else { p->next = c; }
       c->data = f; c->next = NULL;
       l->size++;
-      p = c;
-      c = c->next;
+      p = c; c = c->next;
       n /= f;
-    } else f++;
+      if (f > m) break;
+    } else f+=2;
   }
 }
 
@@ -136,8 +142,7 @@ int main (int argc, char **argv)
   /* Initialize the factor list */
   l = malloc(sizeof(list));
   if (!l) { printf(LALLOC_FAIL); return 0; }
-  l->head = NULL;
-  l->size = 0;
+  l->head = NULL; l->size = 0;
 
   /* Argument parsing */
   if (argc < 2) { printf(USAGE_STR,argv[0]); return 0; }
@@ -146,10 +151,10 @@ int main (int argc, char **argv)
 
   /* Factor n */
   trial_factor(n,l);
-  
+
   /* Clean up, print and destroy the results */
-  if (l->size < 2) { printf(DATA_FORMAT " is prime\n",n); } 
-  else { printf("Factorization of " DATA_FORMAT ":\n",n); print_list(l); }
+  if (l->size == 1) { printf(DATA_FORMAT " is prime\n",n); } 
+  else { printf("Prime factors of " DATA_FORMAT ":\n",n); print_list(l); }
   destroy_list(l); 
 
   /* End of program */
