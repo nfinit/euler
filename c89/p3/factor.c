@@ -129,9 +129,7 @@ void trial_factor (DATA n, list* l)
 }
 
 /* MAIN FUNCTION
- * Takes in the maximum value as the first argument and arbitrary 
- * target divisors in subsequent arguments. Keeps track of and
- * prints sum of matching numbers when loop is completed.
+ * Takes in the number to be factored
  */
 int main (int argc, char **argv)
 {
