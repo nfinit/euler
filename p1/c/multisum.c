@@ -16,8 +16,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#ifndef _BRUTEFORCE
-  #define _FAST
+#ifndef BRUTEFORCE
+  #define FAST
 #endif
 
 /* TYPE DEFINITIONS */
@@ -26,7 +26,7 @@ typedef unsigned long DATA;
 typedef unsigned long INDEX;
 #define INDEX_FORMAT  "%lu"
 
-#ifdef _FAST
+#ifdef FAST
 /* PAIR struct for differentiating odd/even products
  * when generating correction tables for the fast algorithm 
  */
@@ -47,7 +47,7 @@ DATA   *optimize_divisors (DATA *set, INDEX *set_size);
 INDEX  is_multiple        (DATA n, DATA *set, INDEX set_size);
 DATA   brute_force_sum    (DATA *divisors, INDEX num_divisors, DATA max);
 
-#ifdef _FAST
+#ifdef FAST
 /* Fast algorithm functions */
 DATA factorial     (DATA n);
 INDEX combination  (DATA n, DATA r);
@@ -86,6 +86,7 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
   j = 0; for (i = 0; i < orig_set_size; i++)
     if (set[i] > 0) { optimized_set[j] = set[i]; j++; }
 
+  #ifdef VERBOSE 
   /* Print contents of optimized array */
   printf("Optimized search: {");
   for (i = 0; i < optimized_set_size; i++)
@@ -93,9 +94,10 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
     printf(DATA_FORMAT,optimized_set[i]);
     if (i != optimized_set_size - 1) printf(", ");
   } 
-  printf("} ("INDEX_FORMAT" byte",optimized_set_size*sizeof(DATA));
+  printf("} (" INDEX_FORMAT " byte",optimized_set_size*sizeof(DATA));
   if (optimized_set_size*sizeof(DATA) != 1) printf("s");
   printf(")\n");
+  #endif
 
   /* Clean up old set, adjust set size and return the new set */
   free(set); *set_size = optimized_set_size; return optimized_set;
@@ -123,11 +125,13 @@ DATA brute_force_sum (DATA *divisors, INDEX num_divisors, DATA max)
  DATA n, sum, matches; sum = 0; matches = 0; 
  for (n = 1; n <= max; n++) 
    if (is_multiple(n,divisors,num_divisors)) { sum += n; matches++; }
+ #ifdef VERBOSE
  printf("Matches in range: " DATA_FORMAT "\n",matches);
+ #endif
  return sum;
 }
 
-#ifdef _FAST
+#ifdef FAST
 /* Functions in this block are only needed for fast summation */
 
 /* factorial (n)
@@ -180,10 +184,12 @@ DATA correction (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status)
      lo = odd_size; 
    }
  }
-
+ 
+ #ifdef VERBOSE
  /* Print product table target size */  
  printf("Correction table: " INDEX_FORMAT " bytes\n",
         (INDEX)sizeof(DATA)*(even_size+odd_size+sizeof(PAIR)+2));
+ #endif
 
  /* Initialize the correction table */
  correction_table = malloc(sizeof(PAIR));
@@ -252,7 +258,7 @@ int main (int argc, char **argv)
   DATA max, sum, *divisors;
   INDEX i, num_divisors;
 
-  #ifdef _FAST
+  #ifdef FAST
    INDEX correction_flag;
    correction_flag = 1;
   #endif
@@ -268,15 +274,17 @@ int main (int argc, char **argv)
     divisors[i] = floor(atof(argv[i+2]));
     if (divisors[i] < 1) { printf(ARGS_FAIL,argv[0]); return 0; }
   }
-
+  
+  #ifdef VERBOSE
   /* Print pre-run statistics */
   printf("Testing range:    0 < n < " DATA_FORMAT "\n",max+1);
   printf("Data size:        " INDEX_FORMAT " bits\n",(INDEX)sizeof(DATA)*8);
+  #endif
 
   /* Optimize divisor set */
   divisors = optimize_divisors(divisors,&num_divisors);
 
- #ifdef _FAST
+  #ifdef FAST
   /* Make initial summation pass and then correct it by eliminating duplicates;
    * fall back to brute force algorithm if correction fails
    */
@@ -285,14 +293,17 @@ int main (int argc, char **argv)
   sum += correction(max,divisors,num_divisors,&correction_flag);
   if (correction_flag) { printf("Using brute force search...\n");
     sum = brute_force_sum(divisors,num_divisors,max); } 
- #else
+  #else
   /* Use brute force search in all cases 
-   * if _P1_BRUTEFORCE is defined during compilation
+   * if BRUTEFORCE is defined during compilation
    */
   sum = brute_force_sum(divisors,num_divisors,max);
- #endif
+  #endif
 
   /* Result return and cleanup */ 
-  printf("Sum of matches:   " DATA_FORMAT "\n",sum);
+  #ifdef VERBOSE
+  printf("Sum of matches:   ");
+  #endif
+  printf(DATA_FORMAT "\n",sum);
   free(divisors); return 0;
 }
