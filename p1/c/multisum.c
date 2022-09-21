@@ -11,20 +11,18 @@
  * by eliminating sums of values divisible by products of the input set as
  * well as optimizing the input set itself.
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
- 
-/* DEFAULT TO FAST ALGORITHM */
-#ifndef _BRUTEFORCE
-  #define _FAST
-#endif
 
-/* INCLUDES */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
+#ifndef _BRUTEFORCE
+  #define _FAST
+#endif
+
 /* TYPE DEFINITIONS */
-typedef long double   DATA;
-#define DATA_FORMAT   "%.0Lf"
+typedef unsigned long DATA;
+#define DATA_FORMAT   "%lu"
 typedef unsigned long INDEX;
 #define INDEX_FORMAT  "%lu"
 
@@ -52,7 +50,7 @@ DATA   brute_force_sum    (DATA *divisors, INDEX num_divisors, DATA max);
 #ifdef _FAST
 /* Fast algorithm functions */
 DATA factorial     (DATA n);
-INDEX combination   (DATA n, DATA r);
+INDEX combination  (DATA n, DATA r);
 DATA sum_divisible (DATA n, DATA max);
 DATA correction    (DATA max, DATA *set, INDEX set_size, INDEX *alloc_status);
 #endif
@@ -92,10 +90,10 @@ DATA *optimize_divisors (DATA *set, INDEX *set_size)
   printf("Optimized search: {");
   for (i = 0; i < optimized_set_size; i++)
   { 
-    printf("%.0Lf",optimized_set[i]);
+    printf(DATA_FORMAT,optimized_set[i]);
     if (i != optimized_set_size - 1) printf(", ");
   } 
-  printf("} (%lu byte",optimized_set_size*sizeof(DATA));
+  printf("} ("INDEX_FORMAT" byte",optimized_set_size*sizeof(DATA));
   if (optimized_set_size*sizeof(DATA) != 1) printf("s");
   printf(")\n");
 
